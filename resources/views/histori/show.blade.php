@@ -50,16 +50,16 @@
         </section>
 
         <section class="mt-4 space-y-4 text-sm text-gray-700 leading-relaxed">
-            <p>Kami PT. TASNIEM GERAI INSPIRASI adalah dealer resmi PT. JOTUN INDONESIA, didirikan pada tanggal 4 Februari 2010, Konsep Inspirasi Centre pertama di kota Batam dan pertama di Indonesia, website <a href="https://tasniemgroup.com" class="text-blue-600 underline">https://tasniemgroup.com</a>.</p>
+            <p>Kami CV. DAEDAN ENTERPRISE adalah Perusahaan penyedia Jasa dan Produk, didirikan pada tanggal 4 April 2026, website <a href="https://suratpenawaran.biz.id" class="text-blue-600 underline">https://suratpenawaran.biz.id</a>.</p>
             <div>
-                <p>Kami PT Tasniem Gerai Inspirasi begerak di bidang Painting Dan Pekerjaan Sipil lainnya :</p>
+                <p>Kami CV. DAEDAN ENTERPRISE begerak di bidang Painting Dan Pekerjaan Sipil lainnya :</p>
                 <ol class="list-decimal list-inside ml-4">
                     <li>Pekerjaan pengecatan dan perawatan gedung</li>
                     <li>Pemasangan partisi dan plafon Finising gypsum dan plafon sunda Plafon</li>
-                    <li>Pekerjaan Pengecatan Lantai epoxy</li>
+                    <li>Pekerjaan Sipil Rumah Tangga</li>
                 </ol>
             </div>
-            <p>Dengan ini kami sampaikan penawaran Upah Jasa pengecatan :</p>
+            <p>Dengan ini kami sampaikan penawaran Upah Jasa :</p>
         </section>
 
         {{-- PHP LOGIC --}}
@@ -195,12 +195,12 @@
         <section class="mt-8 text-sm text-gray-700 leading-relaxed">
             <h4 class="font-semibold text-gray-800">Teknis pengerjaan:</h4>
             <ul class="list-disc list-inside ml-4 mt-2">
-                <li>Semua peralatan pekerjaan akan disiapkan oleh pihak PT. Tasniem Gerai Inspirasi</li>
+                <li>Semua peralatan pekerjaan akan disiapkan oleh pihak CV. DAEDAN ENTERPRISE</li>
                 <li>Meliputi : Cat, rol, kuas, dempul, plamir, scaffolding dll.</li>
                 <li>Air dan Listrik serta gudang penyimpanan disediakan oleh pemberi kerja yaitu pihak {{ $offer->nama_klien }}</li>
                 <li>Pengukuran final luas area akan dihitung bersama dan dijadikan patokan untuk nilai pekerjaan yang disepakati nantinya.</li>
-                <li>Aplikasi Sealer ( cat dasar ) dilakukan pada area dinding yang akan di Cat.</li>
-                <li>Pengecatan warna dua lapis.</li>
+                <li>Semen dan Pasir disediakan oleh pihak CV. DAEDAN ENTERPRISE</li>
+                <li>Pengecekan Test Uji Coba.</li>
                 <li>Finish.</li>
             </ul>
         </section>
@@ -215,8 +215,8 @@
                 <div class="h-28 w-48 relative">
                     <img src="{{ asset('images/ttd.png') }}" alt="Logo & Tanda Tangan" class="h-28 opacity-100 mx-auto">
                 </div>
-                <p class="font-bold text-gray-800">SAMSU RIZAL</p>
-                <p class="text-gray-600">General Manager</p>
+                <p class="font-bold text-gray-800">Didan Sirodjuddin</p>
+                <p class="text-gray-600">President Director</p>
             </div>
         </section>
 

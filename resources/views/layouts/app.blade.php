@@ -175,6 +175,10 @@
                         </a>
 
                         <a href="{{ route('bast.index') }}" class="flex items-center px-4 py-2 text-sm text-slate-400 hover:text-white hover:translate-x-1 transition-transform italic">
+                            <span class="mr-2 text-blue-500">•</span> Histori BAST
+                        </a>
+                        
+                        <a href="{{ route('surat_jalan.index') }}" class="flex items-center px-4 py-2 text-sm text-slate-400 hover:text-white hover:translate-x-1 transition-transform italic">
                             <span class="mr-2 text-blue-500">•</span> Histori Surat Jalan
                         </a>
 

@@ -105,6 +105,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/print', [BastController::class, 'print'])->name('print');
     });
 
+    // --- SURAT JALAN (Untuk Produk) ---
+    Route::prefix('surat-jalan')->name('surat_jalan.')->group(function () {
+        Route::get('/histori', [App\Http\Controllers\SuratJalanController::class, 'index'])->name('index');
+        Route::get('/create/{offer}', [App\Http\Controllers\SuratJalanController::class, 'create'])->name('create');
+        Route::post('/store/{offer}', [App\Http\Controllers\SuratJalanController::class, 'store'])->name('store');
+        Route::get('/show/{suratJalan}', [App\Http\Controllers\SuratJalanController::class, 'show'])->name('show');
+        Route::get('/{id}/print', [App\Http\Controllers\SuratJalanController::class, 'print'])->name('print');
+        Route::delete('/{suratJalan}', [App\Http\Controllers\SuratJalanController::class, 'destroy'])->name('destroy');
+    });
+
     //--- Pembuatan REKAP
     Route::get('/recap/create/{offer}', [RecapController::class, 'create'])->name('histori.recap');
     Route::post('/recap/store', [RecapController::class, 'store'])->name('recap.store');

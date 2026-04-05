@@ -52,7 +52,7 @@
 
         <section class="mt-8 text-sm">
             <p class="mb-2">Bersama ini kami sampaikan tagihan untuk:</p>
-            <p><span class="font-medium w-20 inline-block">Project</span>: Pengecatan dan Supply Produk Kami</p>
+            <p><span class="font-medium w-20 inline-block">Project</span>: Supply Produk/Jasa</p>
             @if($invoice->offer && $invoice->offer->client_details)
             <p><span class="font-medium w-20 inline-block">Alamat</span>: {{ $invoice->offer->client_details }}</p>
             @endif

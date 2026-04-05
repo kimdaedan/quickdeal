@@ -156,7 +156,7 @@
             <ul class="list-disc ml-4 space-y-0">
                 <li>Harga sudah termasuk PPN.</li>
                 <li>Barang yang sudah dibeli tidak dapat dikembalikan.</li>
-                <li>Rekening: <strong>BRI / Mandiri a.n CV. DAEDAN ENTERPRISE</strong>.</li>
+                <li>Rekening: <strong>BCA a.n CV. DAEDAN ENTERPRISE</strong>.</li>
 
             </ul>
         </section>

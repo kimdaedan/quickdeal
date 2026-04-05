@@ -45,21 +45,9 @@
             @csrf
 
             <!-- KOP SURAT -->
-            <header class="border-b-2 border-gray-300 pb-4 mb-8">
-                <div class="flex justify-between items-center">
-                    <div class="w-1/4">
-                        <img src="{{ asset('images/logo-tasniem.png') }}" alt="Logo Tasniem" class="w-32">
-                    </div>
-                    <div class="w-1/2 text-center">
-                        <h1 class="text-xl font-bold text-gray-800">PT. TASNIEM GERAI INSPIRASI</h1>
-                        <p class="text-sm font-semibold text-gray-600">(The First Inspiration Center of Jotun Indonesia)</p>
-                        <p class="text-xs text-gray-500 mt-2">Komp. Ruko KDA Junction Blok C 8 - 9 Batam Centre, Batam, Kepri - Indonesia</p>
-                        <p class="text-xs text-gray-500">Telp : +62 778-7485 999, 7080 549 Fax : +62 778-7485 789</p>
-                        <p class="text-xs text-gray-500">E-mail : tgi_team040210@yahoo.com Website : www.jotun.com/ap</p>
-                    </div>
-                    <div class="w-1/4 flex justify-end">
-                        <img src="{{ asset('images/logo-jotun.png') }}" alt="Logo Jotun" class="w-40">
-                    </div>
+            <header class="w-full mb-6">
+                <div class="w-full">
+                    <img src="{{ asset('images/kopsurat.jpg') }}" alt="Kop Surat" class="w-full h-auto">
                 </div>
             </header>
 
