@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Penawaran.App</title>
+    <title>Login - Quick.Deal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -16,7 +16,7 @@
 
         <div class="text-center mb-8">
             <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">
-                PEN<span class="text-blue-600">AWARAN</span>.APP
+                QUI<span class="text-blue-600">CK</span>.DEAL
             </h1>
             <p class="text-gray-500 text-sm mt-2">Silakan masuk menggunakan username Anda</p>
         </div>

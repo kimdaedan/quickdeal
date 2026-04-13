@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Penawaran.app - Solusi Administrasi Bisnis Modern</title>
+    <title>Quick.Deal - Solusi Administrasi Bisnis Modern</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -20,7 +20,7 @@
     <img src="{{ asset('images/logo-app.png') }}"
          alt="Logo"
          class="h-10 w-auto object-contain">
-                <span class="text-xl font-extrabold tracking-tight">PENAWARAN<span class="text-blue-600">.APP</span></span>
+                <span class="text-xl font-extrabold tracking-tight">Quick<span class="text-blue-600">.Deal</span></span>
             </div>
             <div class="hidden md:flex items-center gap-8 font-medium text-slate-600">
                 <a href="#fitur" class="hover:text-blue-600 transition">Fitur</a>
@@ -33,7 +33,7 @@
         <div class="max-w-7xl mx-auto text-center">
             <span class="bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-sm font-bold tracking-wide uppercase">🚀 Revolusi Administrasi Proyek</span>
             <h1 class="mt-8 text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 leading-tight">
-                Buat Penawaran & SPK <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Dalam Hitungan Detik.</span>
+                Buat Penawaran & Invoice <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Dalam Hitungan Detik.</span>
             </h1>
             <p class="mt-6 text-xl text-slate-600 max-w-2xl mx-auto">
                 Kelola harga produk, buat invoice otomatis, dan pantau histori BAST dalam satu platform terintegrasi. Profesional, cepat, dan mudah.
