@@ -39,6 +39,7 @@
                 Kelola harga produk, buat invoice otomatis, dan pantau histori BAST dalam satu platform terintegrasi. Profesional, cepat, dan mudah.
             </p>
             <div class="mt-10 flex flex-col md:flex-row gap-4 justify-center">
+                <a href="{{ route('front.penawaran.index') }}" class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition shadow-xl">Lihat Penawaran</a>
                 <a href="{{ route('dashboard') }}" class="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-slate-800 transition shadow-xl">Login</a>
             </div>
 

@@ -204,4 +204,22 @@ class OfferController extends Controller
         $offer = Offer::with(['items', 'jasaItems'])->findOrFail($id);
         return view('histori.print', compact('offer'));
     }
+
+    public function togglePublish(Request $request, Offer $offer)
+    {
+        $data = ['is_public' => !$offer->is_public];
+        
+        if (!$offer->is_public) {
+            // Akan dipublish, ambil judul dari request
+            $data['judul_publik'] = $request->input('judul_publik');
+        } else {
+            // Batal publish, kosongkan judul (opsional, tapi baik untuk kebersihan data)
+            $data['judul_publik'] = null;
+        }
+
+        $offer->update($data);
+        
+        $status = $offer->is_public ? 'Dipublish' : 'Batal Publish';
+        return redirect()->back()->with('success', "Penawaran berhasil {$status}!");
+    }
 }

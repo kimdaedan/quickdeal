@@ -25,6 +25,10 @@ Route::get('/', function () {
     return view('front.landing'); // Pastikan file resources/views/landing.blade.php sudah ada
 })->name('front.landing');
 
+Route::get('/penawaran-public', [\App\Http\Controllers\PublicOfferController::class, 'index'])->name('front.penawaran.index');
+Route::get('/penawaran-public/{id}', [\App\Http\Controllers\PublicOfferController::class, 'show'])->name('front.penawaran.show');
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{offer}', [OfferController::class, 'update'])->name('update');
         Route::delete('/{offer}', [OfferController::class, 'destroy'])->name('destroy');
         Route::get('/{offer}/print', [OfferController::class, 'print'])->name('print');
+        Route::post('/{offer}/toggle-publish', [OfferController::class, 'togglePublish'])->name('toggle_publish');
     });
 
     // --- INVOICE ---

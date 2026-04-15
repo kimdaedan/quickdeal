@@ -84,6 +84,18 @@
                                             <a href="{{ route('histori.edit', ['offer' => $offer->id]) }}" class="text-yellow-600 block px-4 py-2 text-sm hover:bg-gray-100 font-medium">✏️ Edit Proyek</a>
                                         @endif
                                         <div class="border-t border-gray-100 my-1"></div>
+                                        <form action="{{ route('histori.toggle_publish', ['offer' => $offer->id]) }}" method="POST"
+                                            @if(!$offer->is_public)
+                                                onsubmit="let judul = prompt('Masukkan judul Penawaran:', '{{ $offer->judul_publik ?: 'Penawaran ' . ucfirst($offer->jenis_penawaran) }}'); if(judul === null) { return false; } document.getElementById('judul_publik_{{ $offer->id }}').value = judul;"
+                                            @endif
+                                        >
+                                            @csrf
+                                            <input type="hidden" name="judul_publik" id="judul_publik_{{ $offer->id }}">
+                                            <button type="submit" class="w-full text-left text-fuchsia-700 block px-4 py-2 text-sm hover:bg-gray-100 font-medium">
+                                                {{ $offer->is_public ? '🚫 Batal Publish' : '🌐 Publish ke Web' }}
+                                            </button>
+                                        </form>
+                                        <div class="border-t border-gray-100 my-1"></div>
                                         <form action="{{ route('histori.destroy', ['offer' => $offer->id]) }}" method="POST" onsubmit="return confirm('Hapus penawaran ini?');">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="w-full text-left text-red-700 block px-4 py-2 text-sm hover:bg-gray-100">🗑️ Delete</button>
@@ -107,6 +119,12 @@
                                 <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded border border-blue-400">Produk</span>
                             @else
                                 <span class="bg-gray-100 text-gray-800 text-xs font-bold px-2.5 py-0.5 rounded border border-gray-500">Proyek</span>
+                            @endif
+                            
+                            @if($offer->is_public)
+                                <div class="mt-1">
+                                    <span class="bg-fuchsia-100 text-fuchsia-800 text-xs font-bold px-2 py-0.5 rounded border border-fuchsia-300">🌐 Publik</span>
+                                </div>
                             @endif
                         </td>
 

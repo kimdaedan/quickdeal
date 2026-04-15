@@ -27,6 +27,8 @@ class Offer extends Model
         'hilangkan_grand_total',
         'jenis_penawaran',
         'total_keseluruhan',
+        'is_public',
+        'judul_publik',
     ];
 
     public function items()
