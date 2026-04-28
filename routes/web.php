@@ -18,8 +18,11 @@ use App\Http\Controllers\RecapController;
 */
 
 Route::get('/', function () {
-    // Jika user sudah login, arahkan langsung ke dashboard
+    // Jika user sudah login, arahkan langsung ke dashboard sesuai role
     if (auth()->check()) {
+        if (auth()->user()->role === 'client') {
+            return redirect()->route('client.dashboard');
+        }
         return redirect()->route('dashboard');
     }
     return view('front.landing'); // Pastikan file resources/views/landing.blade.php sudah ada
@@ -39,6 +42,9 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -49,8 +55,19 @@ Route::middleware(['auth'])->group(function () {
 
     // --- DASHBOARD ---
     Route::get('/dashboard', function () {
+        if (auth()->user()->role === 'client') {
+            return redirect()->route('client.dashboard');
+        }
         return view('dashboard');
     })->name('dashboard');
+
+    // --- CLIENT DASHBOARD ---
+    Route::get('/client/dashboard', function () {
+        if (auth()->user()->role !== 'client') {
+            return redirect()->route('dashboard');
+        }
+        return view('client.dashboard');
+    })->name('client.dashboard');
 
     // --- MASTER DATA PRODUK (DAFTAR HARGA) ---
     Route::prefix('daftar-harga')->name('harga.')->group(function () {

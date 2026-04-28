@@ -179,8 +179,7 @@
                     <table class="w-full text-left border-collapse mb-4">
                         <thead class="bg-gray-200 text-black">
                             <tr>
-                                <th class="py-2 px-1 font-semibold uppercase text-xs w-[10%] align-middle">Kode/Brand</th>
-                                <th class="py-2 px-1 font-semibold uppercase text-xs w-[30%] align-middle">Nama Jasa / Produk</th>
+                                <th class="py-2 px-1 font-semibold uppercase text-xs w-[40%] align-middle">Nama Jasa / Produk</th>
                                 <th class="py-2 px-1 font-semibold uppercase text-xs text-right w-[15%] align-middle">Volume/QTY</th>
                                 <th class="py-2 px-1 font-semibold uppercase text-xs text-center w-[10%] align-middle">Satuan</th>
                                 <th class="py-2 px-1 font-semibold uppercase text-xs text-right w-[15%] align-middle">Harga Satuan</th>
@@ -197,9 +196,6 @@
                                 $satuan = $item->deskripsi_tambahan ?: ($p->satuan ?? '-');
                             @endphp
                             <tr class="border-b border-gray-500">
-                                <td class="py-0.5 px-1 text-xs text-gray-700 leading-none align-middle">
-                                    {{ $p->performa ?? '-' }}
-                                </td>
                                 <td class="py-0.5 px-1 text-xs text-gray-700 leading-none align-middle">{{ $item->nama_produk }}</td>
                                 <td class="py-0.5 px-1 text-xs text-gray-700 leading-none text-right whitespace-nowrap align-middle">{{ $item->volume + 0 }}</td>
                                 <td class="py-0.5 px-1 text-xs text-gray-700 leading-none text-center whitespace-nowrap align-middle">{{ $satuan }}</td>
@@ -215,7 +211,7 @@
                         @if($showTotal)
                         <tfoot>
                             <tr class="bg-gray-100 font-bold text-gray-800">
-                                <td colspan="5" class="py-1 px-1 text-xs text-right uppercase align-middle">Subtotal</td>
+                                <td colspan="4" class="py-1 px-1 text-xs text-right uppercase align-middle">Subtotal</td>
                                 <td class="py-1 px-1 text-xs text-right whitespace-nowrap align-middle">
                                     <div class="flex justify-end gap-1 w-full"><span>Rp</span><span>{{ number_format($subtotalKategori, 0, ',', '.') }}</span></div>
                                 </td>
@@ -233,16 +229,16 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-200 text-black">
                             <tr>
-                                <th class="py-2 px-1 font-semibold uppercase text-xs w-[50%] align-middle" colspan="3">Deskripsi Pengerjaan</th>
-                                <th class="py-2 px-1 font-semibold uppercase text-xs text-right w-[10%] align-middle">Vol/Sat</th>
-                                <th class="py-2 px-1 font-semibold uppercase text-xs text-right w-[20%] align-middle">Harga Satuan</th>
+                                <th class="py-2 px-1 font-semibold uppercase text-xs w-[50%] align-middle" colspan="2">Deskripsi Pengerjaan</th>
+                                <th class="py-2 px-1 font-semibold uppercase text-xs text-right w-[15%] align-middle">Vol/Sat</th>
+                                <th class="py-2 px-1 font-semibold uppercase text-xs text-right w-[15%] align-middle">Harga Satuan</th>
                                 <th class="py-2 px-1 font-semibold uppercase text-xs text-right w-[20%] align-middle">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($offer->jasaItems as $jasa)
                             <tr class="border-b border-gray-200">
-                                <td class="py-1 px-1 font-medium text-gray-800 text-xs leading-none align-middle" colspan="3">{{ $jasa->nama_jasa }}</td>
+                                <td class="py-1 px-1 font-medium text-gray-800 text-xs leading-none align-middle" colspan="2">{{ $jasa->nama_jasa }}</td>
                                 <td class="py-1 px-1 text-right text-xs leading-none align-middle whitespace-nowrap">{{ $jasa->volume + 0 }} {{ $jasa->satuan }}</td>
                                 <td class="py-1 px-1 text-xs leading-none whitespace-nowrap align-middle">
                                     <div class="flex justify-end gap-1 w-full"><span>Rp</span><span>{{ number_format($jasa->harga_satuan, 0, ',', '.') }}</span></div>
@@ -256,7 +252,7 @@
                         @if($showTotal)
                         <tfoot>
                             <tr class="bg-gray-100 font-bold text-gray-800">
-                                <td colspan="5" class="py-1 px-1 text-xs text-right uppercase align-middle">Total Pengerjaan Tambahan</td>
+                                <td colspan="4" class="py-1 px-1 text-xs text-right uppercase align-middle">Total Pengerjaan Tambahan</td>
                                 <td class="py-1 px-1 text-xs text-right whitespace-nowrap align-middle">
                                     <div class="flex justify-end gap-1 w-full"><span>Rp</span><span>{{ number_format($totalJasa, 0, ',', '.') }}</span></div>
                                 </td>

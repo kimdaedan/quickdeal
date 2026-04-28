@@ -60,9 +60,15 @@
                 </div>
             </div>
 
-            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 active:bg-blue-800 transform hover:-translate-y-0.5 transition duration-200 shadow-md">
+            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 active:bg-blue-800 transform hover:-translate-y-0.5 transition duration-200 shadow-md mb-4">
                 Masuk ke Aplikasi
             </button>
+
+            <div class="text-center">
+                <p class="text-sm text-gray-600">Belum punya akun? 
+                    <a href="{{ route('register') }}" class="text-blue-600 hover:text-blue-800 font-semibold transition">Daftar di sini</a>
+                </p>
+            </div>
         </form>
 
         <div class="mt-8 pt-6 border-t border-gray-100 text-center text-xs text-gray-400">

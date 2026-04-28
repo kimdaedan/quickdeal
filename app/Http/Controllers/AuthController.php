@@ -20,6 +20,42 @@ class AuthController extends Controller
     }
 
     /**
+     * Menampilkan form register.
+     */
+    public function showRegisterForm()
+    {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+        return view('auth.register');
+    }
+
+    /**
+     * Memproses register.
+     */
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = \App\Models\User::create([
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'role' => 'client',
+        ]);
+
+        Auth::login($user);
+
+        return redirect()->route('client.dashboard');
+    }
+
+    /**
      * Memproses login menggunakan username & password.
      */
     public function login(Request $request)
@@ -31,17 +67,19 @@ class AuthController extends Controller
         ]);
 
         // 2. Coba login (Attempt)
-        // Auth::attempt secara otomatis akan mengenkripsi password input
-        // dan mencocokkannya dengan password hash di database.
         if (Auth::attempt($credentials)) {
             // Jika berhasil:
-            $request->session()->regenerate(); // Regenerasi session ID untuk keamanan (fix session fixation)
+            $request->session()->regenerate();
 
-            return redirect()->intended('/'); // Redirect ke halaman tujuan atau home
+            // Redirect based on role
+            if (Auth::user()->role === 'client') {
+                return redirect()->route('client.dashboard');
+            }
+
+            return redirect()->intended('/');
         }
 
         // 3. Jika gagal:
-        // Kembali ke halaman login dengan pesan error pada kolom username
         return back()->withErrors([
             'username' => 'Username atau password salah.',
         ])->onlyInput('username');
