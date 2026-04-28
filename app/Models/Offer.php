@@ -39,4 +39,9 @@ class Offer extends Model
 public function jasaItems() {
     return $this->hasMany(OfferJasa::class);
 }
+
+public function purchaseOrders()
+{
+    return $this->hasMany(PurchaseOrder::class);
+}
 }

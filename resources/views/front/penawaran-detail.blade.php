@@ -212,6 +212,13 @@
             </section>
 
         </div>
+
+        {{-- BUAT PO BUTTON --}}
+        <div class="max-w-4xl mx-auto mt-8 flex justify-center">
+            <a href="{{ route('po.create', $offer->id) }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition duration-200 hover:-translate-y-1">
+                Buat Purchase Order (PO)
+            </a>
+        </div>
     </div>
 
 </body>

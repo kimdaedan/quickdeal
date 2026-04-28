@@ -108,6 +108,11 @@
                                 @endif
                             </span>
                         </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100">
+                            <object><a href="{{ route('po.create', $offer->id) }}" class="block w-full text-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-xl transition duration-200">
+                                Buat PO
+                            </a></object>
+                        </div>
                     </a>
                 @empty
                     <div class="col-span-full text-center py-20">

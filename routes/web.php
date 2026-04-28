@@ -61,13 +61,22 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    // --- CLIENT DASHBOARD ---
+    // --- CLIENT DASHBOARD & PO ---
     Route::get('/client/dashboard', function () {
         if (auth()->user()->role !== 'client') {
             return redirect()->route('dashboard');
         }
         return view('client.dashboard');
     })->name('client.dashboard');
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/penawaran-public/{id}/buat-po', [\App\Http\Controllers\PurchaseOrderController::class, 'create'])->name('po.create');
+        Route::post('/penawaran-public/{id}/buat-po', [\App\Http\Controllers\PurchaseOrderController::class, 'store'])->name('po.store');
+
+        Route::get('/client/po-history', [\App\Http\Controllers\PurchaseOrderController::class, 'historyUser'])->name('client.po.history');
+        Route::get('/admin/po-history', [\App\Http\Controllers\PurchaseOrderController::class, 'historyAdmin'])->name('admin.po.history');
+        Route::post('/admin/po/{id}/status', [\App\Http\Controllers\PurchaseOrderController::class, 'updateStatus'])->name('admin.po.status');
+    });
 
     // --- MASTER DATA PRODUK (DAFTAR HARGA) ---
     Route::prefix('daftar-harga')->name('harga.')->group(function () {

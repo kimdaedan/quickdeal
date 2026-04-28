@@ -20,10 +20,17 @@ class InvoiceController extends Controller
         // Mulai query ke model Invoice
         $query = Invoice::query();
 
+        // Jika user adalah client, hanya tampilkan invoice milik mereka (berdasarkan nama)
+        if (auth()->user()->role === 'client') {
+            $query->where('nama_klien', auth()->user()->name);
+        }
+
         // Jika ada pencarian, filter berdasarkan nama klien atau no. invoice
         if ($search) {
-            $query->where('nama_klien', 'like', '%' . $search . '%')
-                ->orWhere('no_invoice', 'like', '%' . $search . '%');
+            $query->where(function($q) use ($search) {
+                $q->where('nama_klien', 'like', '%' . $search . '%')
+                  ->orWhere('no_invoice', 'like', '%' . $search . '%');
+            });
         }
 
         // Ambil data terbaru dengan pagination (15 per halaman)
@@ -62,6 +69,12 @@ class InvoiceController extends Controller
     public function print($id)
     {
         $invoice = \App\Models\Invoice::with(['offer', 'additions', 'payments'])->findOrFail($id);
+        
+        // Pastikan client hanya bisa print invoicenya sendiri
+        if (auth()->user()->role === 'client' && $invoice->nama_klien !== auth()->user()->name) {
+            abort(403, 'Anda tidak memiliki akses ke invoice ini.');
+        }
+
         return view('invoice.print', compact('invoice'));
     }
 
@@ -142,6 +155,11 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
+        // Pastikan client hanya bisa melihat invoicenya sendiri
+        if (auth()->user()->role === 'client' && $invoice->nama_klien !== auth()->user()->name) {
+            abort(403, 'Anda tidak memiliki akses ke invoice ini.');
+        }
+
         // Load semua relasi yang dibutuhkan untuk 'show.blade.php'
         $invoice->load(['offer.items', 'offer.jasaItems', 'additions', 'payments']);
 

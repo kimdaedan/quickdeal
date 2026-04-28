@@ -108,6 +108,7 @@
                     <span class="font-medium">Dashboard</span>
                 </a>
 
+                @if(auth()->user()->role !== 'client')
                 <div class="nav-divider"></div>
 
                 <a href="{{ route('harga.index') }}" class="flex items-center px-4 py-3 text-slate-300 hover:bg-slate-700/50 hover:text-white rounded-xl transition-all duration-200 group">
@@ -143,6 +144,7 @@
                         </a>
                     </div>
                 </div>
+                @endif
 
                 <div x-data="{ open: false }" class="mt-4">
                     <button @click="open = !open" onclick="toggleSubmenu('histori-submenu', 'histori-icon')"
@@ -161,6 +163,7 @@
                     </button>
 
                     <div id="histori-submenu" class="submenu space-y-1">
+                        @if(auth()->user()->role !== 'client')
                         {{-- Histori Rekapan (Tambahan Baru) --}}
                         <a href="{{ route('recap.index') }}" class="flex items-center px-4 py-2 text-sm text-slate-400 hover:text-white hover:translate-x-1 transition-transform italic">
                             <span class="mr-2 text-emerald-500">•</span> Histori Rekapan Biaya
@@ -169,11 +172,17 @@
                         <a href="{{ route('histori.index') }}" class="flex items-center px-4 py-2 text-sm text-slate-400 hover:text-white hover:translate-x-1 transition-transform italic">
                             <span class="mr-2 text-blue-500">•</span> Histori Penawaran
                         </a>
+                        @endif
 
                         <a href="{{ route('invoice.histori') }}" class="flex items-center px-4 py-2 text-sm text-slate-400 hover:text-white hover:translate-x-1 transition-transform italic">
                             <span class="mr-2 text-blue-500">•</span> Histori Invoice
                         </a>
 
+                        <a href="{{ auth()->user()->role === 'client' ? route('client.po.history') : route('admin.po.history') }}" class="flex items-center px-4 py-2 text-sm text-slate-400 hover:text-white hover:translate-x-1 transition-transform italic">
+                            <span class="mr-2 text-green-500">•</span> Histori PO
+                        </a>
+
+                        @if(auth()->user()->role !== 'client')
                         <a href="{{ route('bast.index') }}" class="flex items-center px-4 py-2 text-sm text-slate-400 hover:text-white hover:translate-x-1 transition-transform italic">
                             <span class="mr-2 text-blue-500">•</span> Histori BAST
                         </a>
@@ -185,8 +194,21 @@
                         <a href="{{ route('skp.index') }}" class="flex items-center px-4 py-2 text-sm text-slate-400 hover:text-white hover:translate-x-1 transition-transform italic">
                             <span class="mr-2 text-blue-500">•</span> Histori SPK
                         </a>
+                        @endif
                     </div>
                 </div>
+
+                @if(auth()->user()->role === 'client')
+                <div class="nav-divider"></div>
+                <a href="{{ route('front.penawaran.index') }}" class="flex items-center px-4 py-3 text-slate-300 hover:bg-slate-700/50 hover:text-white rounded-xl transition-all duration-200 group">
+                    <span class="mr-3 p-2 bg-slate-800 rounded-lg group-hover:bg-blue-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </span>
+                    <span class="font-medium">Penawaran Publik</span>
+                </a>
+                @endif
             </nav>
 
             <div class="p-4 m-4 bg-slate-900/50 rounded-2xl border border-slate-700/50">
@@ -196,7 +218,7 @@
                     </div>
                     <div class="text-sm flex-1 min-w-0">
                         <p class="font-bold text-white truncate">{{ Auth::user()->name ?? 'Guest User' }}</p>
-                        <p class="text-[10px] text-blue-400 font-semibold uppercase tracking-tighter">Super Admin</p>
+                        <p class="text-[10px] text-blue-400 font-semibold uppercase tracking-tighter">{{ Auth::user()->role === 'client' ? 'Client' : 'Super Admin' }}</p>
                     </div>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
