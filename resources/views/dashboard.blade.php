@@ -6,7 +6,7 @@
     <div class="relative bg-gray-900 pb-40 pt-16 px-6 rounded-b-[50px] shadow-2xl overflow-hidden">
 
         <div class="absolute inset-0 z-0">
-            <img src="{{ asset('images/toko-jotun.jpg') }}" alt="Background Toko" class="w-full h-full object-cover opacity-50 blur-[2px]">
+            <img src="{{ asset('images/background.jpg') }}" alt="Background Toko" class="w-full h-full object-cover opacity-50 blur-[2px]">
             <div class="absolute inset-0 bg-gradient-to-b from-gray-900/90 via-gray-900/70 to-gray-900/95"></div>
         </div>
 
