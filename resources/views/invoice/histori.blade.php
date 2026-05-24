@@ -8,9 +8,11 @@
             <h1 class="text-3xl font-bold text-gray-800">
                 Histori Invoice
             </h1>
+            @if(auth()->user()->role !== 'client')
             <a href="{{ route('invoice.create') }}" class="bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-gray-700 transition shadow-sm">
                 + Buat Invoice Baru
             </a>
+            @endif
         </div>
 
         <form action="{{ route('invoice.histori') }}" method="GET" class="mb-6">
@@ -136,6 +138,7 @@
                                             Lihat Detail
                                         </a>
 
+                                        @if(auth()->user()->role !== 'client')
                                         <a href="{{ route('invoice.edit', $invoice->id) }}" class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-700" role="menuitem">
                                             <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -162,6 +165,7 @@
                                             </svg>
                                             Add Payment
                                         </button>
+                                        @endif
                                         @endif
                                     </div>
                                 </div>

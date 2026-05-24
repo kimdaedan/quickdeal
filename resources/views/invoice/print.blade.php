@@ -133,7 +133,9 @@
                 <p class="font-bold mb-1">TO:</p>
                 <p class="font-bold text-lg uppercase">{{ $invoice->nama_klien }}</p>
 
-                @if($invoice->offer && $invoice->offer->client_details)
+                @if($invoice->purchaseOrder && $invoice->purchaseOrder->alamat_detail)
+                <p class="text-gray-700">{{ $invoice->purchaseOrder->alamat_detail }}</p>
+                @elseif($invoice->offer && $invoice->offer->client_details)
                 <p class="text-gray-700">{{ $invoice->offer->client_details }}</p>
                 @endif
 
@@ -157,7 +159,9 @@
         <section class="mt-8 text-sm">
             <p class="mb-2">Bersama ini kami sampaikan tagihan untuk:</p>
             <p><span class="font-medium w-20 inline-block">Project</span>: Pengecatan dan Supply Cat Jotun Paints</p>
-            @if($invoice->offer && $invoice->offer->client_details)
+            @if($invoice->purchaseOrder && $invoice->purchaseOrder->alamat_detail)
+            <p><span class="font-medium w-20 inline-block">Alamat</span>: {{ $invoice->purchaseOrder->alamat_detail }}</p>
+            @elseif($invoice->offer && $invoice->offer->client_details)
             <p><span class="font-medium w-20 inline-block">Alamat</span>: {{ $invoice->offer->client_details }}</p>
             @endif
 

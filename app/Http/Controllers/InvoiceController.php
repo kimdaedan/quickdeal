@@ -48,6 +48,9 @@ class InvoiceController extends Controller
      */
     public function create()
     {
+        if (auth()->user()->role === 'client') {
+            abort(403, 'Anda tidak memiliki akses ke tindakan ini.');
+        }
         return view('invoice.create');
     }
 
@@ -56,6 +59,9 @@ class InvoiceController extends Controller
      */
     public function createFromOffer(Offer $offer)
     {
+        if (auth()->user()->role === 'client') {
+            abort(403, 'Anda tidak memiliki akses ke tindakan ini.');
+        }
         $offer->load(['items', 'jasaItems']);
         return view('invoice.create_from_offer', [
             'offer' => $offer
@@ -81,6 +87,9 @@ class InvoiceController extends Controller
 
     public function storeFromOffer(Request $request)
     {
+        if (auth()->user()->role === 'client') {
+            abort(403, 'Anda tidak memiliki akses ke tindakan ini.');
+        }
         // Validasi data dasar
         $request->validate([
             'offer_id' => 'required|exists:offers,id',
@@ -171,6 +180,9 @@ class InvoiceController extends Controller
      */
     public function edit(Invoice $invoice)
     {
+        if (auth()->user()->role === 'client') {
+            abort(403, 'Anda tidak memiliki akses ke tindakan ini.');
+        }
         // Load relasi yang sama untuk form edit
         $invoice->load(['offer.items', 'offer.jasaItems', 'additions', 'payments']);
 
@@ -184,6 +196,9 @@ class InvoiceController extends Controller
      */
     public function update(Request $request, Invoice $invoice)
     {
+        if (auth()->user()->role === 'client') {
+            abort(403, 'Anda tidak memiliki akses ke tindakan ini.');
+        }
         // Validasi dasar (tambahkan sesuai kebutuhan)
         $request->validate([
             'diskon' => 'nullable|numeric|min:0',
@@ -258,6 +273,9 @@ class InvoiceController extends Controller
      */
     public function destroy(Invoice $invoice)
     {
+        if (auth()->user()->role === 'client') {
+            abort(403, 'Anda tidak memiliki akses ke tindakan ini.');
+        }
         // Menggunakan Route-Model Binding (Invoice $invoice)
         // untuk otomatis menemukan data invoice berdasarkan ID dari URL.
 
@@ -271,6 +289,9 @@ class InvoiceController extends Controller
      */
     public function addPayment(Request $request, Invoice $invoice)
     {
+        if (auth()->user()->role === 'client') {
+            abort(403, 'Anda tidak memiliki akses ke tindakan ini.');
+        }
         $request->validate([
             'keterangan' => 'required|string',
             'jumlah'     => 'required|numeric|min:1',

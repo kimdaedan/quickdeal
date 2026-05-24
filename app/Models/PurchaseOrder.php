@@ -14,6 +14,7 @@ class PurchaseOrder extends Model
         'user_id',
         'name',
         'detail_project',
+        'alamat_detail',
         'phone',
         'email',
         'status',

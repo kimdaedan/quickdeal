@@ -2,6 +2,16 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+
+try {
+    if (!Schema::hasColumn('purchase_orders', 'alamat_detail')) {
+        Schema::table('purchase_orders', function (Blueprint $table) {
+            $table->text('alamat_detail')->nullable();
+        });
+    }
+} catch (\Exception $e) {}
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProductOfferController;
@@ -77,6 +87,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/po-history', [\App\Http\Controllers\PurchaseOrderController::class, 'historyAdmin'])->name('admin.po.history');
         Route::post('/admin/po/{id}/status', [\App\Http\Controllers\PurchaseOrderController::class, 'updateStatus'])->name('admin.po.status');
         Route::get('/po/{id}/print', [\App\Http\Controllers\PurchaseOrderController::class, 'print'])->name('po.print');
+        Route::get('/client/po/{id}/edit', [\App\Http\Controllers\PurchaseOrderController::class, 'edit'])->name('client.po.edit');
+        Route::put('/client/po/{id}', [\App\Http\Controllers\PurchaseOrderController::class, 'update'])->name('client.po.update');
+        Route::delete('/po/{id}', [\App\Http\Controllers\PurchaseOrderController::class, 'destroy'])->name('po.destroy');
+        Route::post('/admin/po/{id}/create-invoice', [\App\Http\Controllers\PurchaseOrderController::class, 'createInvoice'])->name('admin.po.create_invoice');
     });
 
     // --- MASTER DATA PRODUK (DAFTAR HARGA) ---

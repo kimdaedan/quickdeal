@@ -82,6 +82,16 @@
             </div>
         </section>
 
+        <!-- Alamat Detail Pengerjaan -->
+        @if($po->alamat_detail)
+        <section class="mt-4 text-sm">
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <p class="font-semibold text-gray-700 mb-2 uppercase text-xs tracking-wider">Alamat Detail (Pengerjaan):</p>
+                <p class="text-gray-800 whitespace-pre-line">{{ $po->alamat_detail }}</p>
+            </div>
+        </section>
+        @endif
+
         <!-- Items Table -->
         <section class="mt-8 text-sm">
             <p class="font-semibold text-gray-700 mb-3 uppercase text-xs tracking-wider">Rincian Pesanan:</p>
