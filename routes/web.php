@@ -76,6 +76,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/client/po-history', [\App\Http\Controllers\PurchaseOrderController::class, 'historyUser'])->name('client.po.history');
         Route::get('/admin/po-history', [\App\Http\Controllers\PurchaseOrderController::class, 'historyAdmin'])->name('admin.po.history');
         Route::post('/admin/po/{id}/status', [\App\Http\Controllers\PurchaseOrderController::class, 'updateStatus'])->name('admin.po.status');
+        Route::get('/po/{id}/print', [\App\Http\Controllers\PurchaseOrderController::class, 'print'])->name('po.print');
     });
 
     // --- MASTER DATA PRODUK (DAFTAR HARGA) ---

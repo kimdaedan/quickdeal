@@ -47,6 +47,70 @@
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                 </div>
             </div>
+            
+            @if($offer->jenis_penawaran === 'produk')
+            <div class="mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Sesuaikan Kuantitas Produk</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-3 py-2 text-sm font-semibold text-gray-700">Produk</th>
+                                <th class="px-3 py-2 text-sm font-semibold text-gray-700 text-right">Harga Satuan</th>
+                                <th class="px-3 py-2 text-sm font-semibold text-gray-700 text-center w-24">Qty</th>
+                                <th class="px-3 py-2 text-sm font-semibold text-gray-700 text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $initialSubtotal = 0; @endphp
+                            @foreach($offer->items as $item)
+                            @php
+                                $harga = $item->harga_per_m2;
+                                $diskonNominal = 0;
+                                if (preg_match('/(Potongan|Diskon\/Item): Rp ([0-9,.]+)/', $item->deskripsi_tambahan, $matches)) {
+                                    $diskonNominal = (int) str_replace(['.', ','], '', $matches[2]);
+                                }
+                                $hargaBersih = $harga - $diskonNominal;
+                                $totalItem = $hargaBersih * $item->volume;
+                                $initialSubtotal += $totalItem;
+                            @endphp
+                            <tr class="border-b border-gray-100 po-item-row" data-price="{{ $hargaBersih }}">
+                                <td class="px-3 py-2 text-sm text-gray-800">
+                                    {{ $item->nama_produk }}
+                                    @if($diskonNominal > 0)
+                                        <br><span class="text-xs text-red-500">Diskon/item: Rp {{ number_format($diskonNominal, 0, ',', '.') }}</span>
+                                    @endif
+                                </td>
+                                <td class="px-3 py-2 text-sm text-gray-800 text-right">Rp {{ number_format($hargaBersih, 0, ',', '.') }}</td>
+                                <td class="px-3 py-2">
+                                    <input type="number" name="quantities[{{ $item->id }}]" value="{{ $item->volume }}" min="1" required
+                                           class="w-full px-2 py-1 text-center border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 qty-input">
+                                </td>
+                                <td class="px-3 py-2 text-sm font-medium text-gray-900 text-right item-total">Rp {{ number_format($totalItem, 0, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot class="bg-gray-50">
+                            @if($offer->diskon_global > 0)
+                            <tr>
+                                <td colspan="3" class="px-3 py-2 text-sm font-semibold text-gray-600 text-right">Subtotal</td>
+                                <td class="px-3 py-2 text-sm font-semibold text-gray-900 text-right" id="po-subtotal">Rp {{ number_format($initialSubtotal, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="px-3 py-2 text-sm font-semibold text-red-600 text-right" data-global-discount="{{ $offer->diskon_global }}">Diskon Global</td>
+                                <td class="px-3 py-2 text-sm font-semibold text-red-600 text-right">- Rp {{ number_format($offer->diskon_global, 0, ',', '.') }}</td>
+                            </tr>
+                            @endif
+                            <tr>
+                                <td colspan="3" class="px-3 py-3 text-base font-bold text-gray-900 text-right uppercase">Estimasi Grand Total</td>
+                                <td class="px-3 py-3 text-base font-bold text-green-600 text-right" id="po-grand-total">Rp {{ number_format($initialSubtotal - $offer->diskon_global, 0, ',', '.') }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 italic">* Anda dapat menyesuaikan kuantitas produk yang ingin dipesan.</p>
+            </div>
+            @endif
 
             <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
                 <a href="{{ route('front.penawaran.index') }}" class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition">Batal</a>
@@ -56,4 +120,41 @@
 
     </div>
 </div>
+
+@if($offer->jenis_penawaran === 'produk')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const qtyInputs = document.querySelectorAll('.qty-input');
+    const globalDiscountEl = document.querySelector('[data-global-discount]');
+    const globalDiscount = globalDiscountEl ? parseInt(globalDiscountEl.dataset.globalDiscount) : 0;
+    
+    function formatRupiah(number) {
+        return 'Rp ' + number.toLocaleString('id-ID');
+    }
+
+    function calculateTotal() {
+        let subtotal = 0;
+        document.querySelectorAll('.po-item-row').forEach(row => {
+            const price = parseInt(row.dataset.price);
+            const qty = parseInt(row.querySelector('.qty-input').value) || 0;
+            const rowTotal = price * qty;
+            
+            row.querySelector('.item-total').textContent = formatRupiah(rowTotal);
+            subtotal += rowTotal;
+        });
+
+        const subtotalEl = document.getElementById('po-subtotal');
+        if (subtotalEl) subtotalEl.textContent = formatRupiah(subtotal);
+
+        let grandTotal = subtotal - globalDiscount;
+        if (grandTotal < 0) grandTotal = 0;
+        document.getElementById('po-grand-total').textContent = formatRupiah(grandTotal);
+    }
+
+    qtyInputs.forEach(input => {
+        input.addEventListener('input', calculateTotal);
+    });
+});
+</script>
+@endif
 @endsection

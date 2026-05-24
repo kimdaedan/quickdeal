@@ -24,4 +24,9 @@ class Invoice extends Model
     public function payments() {
         return $this->hasMany(InvoicePayment::class);
     }
+
+    // Relasi ke Purchase Order
+    public function purchaseOrder() {
+        return $this->belongsTo(PurchaseOrder::class);
+    }
 }

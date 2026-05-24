@@ -61,6 +61,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-2">
                             <button type="button" onclick="document.getElementById('modal-po-{{ $po->id }}').classList.remove('hidden')" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">Detail</button>
+                            <a href="{{ route('po.print', $po->id) }}" target="_blank" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition" title="Cetak PO">🖨️ Cetak</a>
                             @if(auth()->user()->role !== 'client' && $po->status === 'pending')
                                 <form action="{{ route('admin.po.status', $po->id) }}" method="POST" onsubmit="return confirm('Terima PO ini dan buat Invoice otomatis?');">
                                     @csrf
@@ -71,68 +72,7 @@
                         </td>
                     </tr>
 
-                    <!-- Modal Detail PO -->
-                    <div id="modal-po-{{ $po->id }}" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                            
-                            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('modal-po-{{ $po->id }}').classList.add('hidden')"></div>
 
-                            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-                            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full">
-                                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-100">
-                                    <div class="sm:flex sm:items-start">
-                                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                                            <h3 class="text-xl leading-6 font-bold text-gray-900" id="modal-title">
-                                                Detail Purchase Order
-                                            </h3>
-                                            <div class="mt-4 space-y-4">
-                                                <div class="grid grid-cols-2 gap-4">
-                                                    <div>
-                                                        <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Nama / Bisnis</p>
-                                                        <p class="text-sm font-medium text-gray-900">{{ $po->name }}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Tanggal Dibuat</p>
-                                                        <p class="text-sm font-medium text-gray-900">{{ $po->created_at->format('d F Y, H:i') }}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Email</p>
-                                                        <p class="text-sm font-medium text-gray-900">{{ $po->email }}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">No. HP / Telepon</p>
-                                                        <p class="text-sm font-medium text-gray-900">{{ $po->phone }}</p>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div>
-                                                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Penawaran Referensi</p>
-                                                    <p class="text-sm font-medium text-blue-600">
-                                                        @if($po->offer)
-                                                            <a href="{{ route('front.penawaran.show', $po->offer->id) }}" target="_blank" class="hover:underline">{{ $po->offer->judul_publik ?: 'SP-'.str_pad($po->offer->id, 4, '0', STR_PAD_LEFT) }}</a>
-                                                        @else
-                                                            -
-                                                        @endif
-                                                    </p>
-                                                </div>
-
-                                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                                                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2">Detail Project / Kebutuhan</p>
-                                                    <p class="text-sm text-gray-800 whitespace-pre-line">{{ $po->detail_project }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
-                                    <button type="button" onclick="document.getElementById('modal-po-{{ $po->id }}').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition">
-                                        Tutup
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     @empty
                     <tr>
                         <td colspan="6" class="px-6 py-12 text-center text-gray-500">
@@ -147,6 +87,98 @@
                 </tbody>
             </table>
         </div>
+        
+        <!-- Modals for each PO -->
+        @foreach($pos as $po)
+        <div id="modal-po-{{ $po->id }}" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('modal-po-{{ $po->id }}').classList.add('hidden')"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-100">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                                <h3 class="text-xl leading-6 font-bold text-gray-900" id="modal-title">
+                                    Detail Purchase Order
+                                </h3>
+                                <div class="mt-4 space-y-4">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Nama / Bisnis</p>
+                                            <p class="text-sm font-medium text-gray-900">{{ $po->name }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Tanggal Dibuat</p>
+                                            <p class="text-sm font-medium text-gray-900">{{ $po->created_at->format('d F Y, H:i') }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Email</p>
+                                            <p class="text-sm font-medium text-gray-900">{{ $po->email }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">No. HP / Telepon</p>
+                                            <p class="text-sm font-medium text-gray-900">{{ $po->phone }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Penawaran Referensi</p>
+                                        <p class="text-sm font-medium text-blue-600">
+                                            @if($po->offer)
+                                                <a href="{{ route('front.penawaran.show', $po->offer->id) }}" target="_blank" class="hover:underline">{{ $po->offer->judul_publik ?: 'SP-'.str_pad($po->offer->id, 4, '0', STR_PAD_LEFT) }}</a>
+                                            @else
+                                                -
+                                            @endif
+                                        </p>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                        <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2">Detail Project / Kebutuhan</p>
+                                        <p class="text-sm text-gray-800 whitespace-pre-line">{{ $po->detail_project }}</p>
+                                    </div>
+
+                                    @if($po->offer && $po->offer->jenis_penawaran === 'produk' && $po->custom_quantities)
+                                    <div class="mt-4">
+                                        <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2">Produk yang Dipesan (Custom Qty)</p>
+                                        <div class="overflow-x-auto border rounded-lg border-gray-200">
+                                            <table class="w-full text-left text-sm border-collapse">
+                                                <thead class="bg-gray-100">
+                                                    <tr>
+                                                        <th class="px-3 py-2 border-b font-medium text-gray-700">Produk</th>
+                                                        <th class="px-3 py-2 border-b font-medium text-gray-700 text-center">Qty</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($po->offer->items as $item)
+                                                        @if(isset($po->custom_quantities[$item->id]))
+                                                        <tr class="border-b">
+                                                            <td class="px-3 py-2 text-gray-800">{{ $item->nama_produk }}</td>
+                                                            <td class="px-3 py-2 text-center font-semibold text-gray-900">{{ $po->custom_quantities[$item->id] }}</td>
+                                                        </tr>
+                                                        @endif
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        @if($po->custom_total)
+                                        <p class="text-right mt-2 text-sm font-bold text-gray-900">Total: Rp {{ number_format($po->custom_total, 0, ',', '.') }}</p>
+                                        @endif
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
+                        <button type="button" onclick="document.getElementById('modal-po-{{ $po->id }}').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endforeach
+
         @if($pos->hasPages())
         <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
             {{ $pos->links() }}

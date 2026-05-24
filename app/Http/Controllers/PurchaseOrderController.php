@@ -34,6 +34,41 @@ class PurchaseOrderController extends Controller
         ]);
 
         $offer = Offer::findOrFail($offer_id);
+        $offer->load('items');
+
+        $customQuantities = null;
+        $customTotal = null;
+
+        if ($offer->jenis_penawaran === 'produk' && $request->has('quantities') && is_array($request->quantities)) {
+            $customQuantities = $request->quantities;
+            $subtotal = 0;
+            
+            foreach ($offer->items as $item) {
+                if (isset($customQuantities[$item->id])) {
+                    $qty = max(1, (int)$customQuantities[$item->id]);
+                    $customQuantities[$item->id] = $qty; // Ensure it's stored correctly
+                    
+                    $harga = $item->harga_per_m2;
+                    $diskonNominal = 0;
+                    if (preg_match('/(Potongan|Diskon\/Item): Rp ([0-9,.]+)/', $item->deskripsi_tambahan, $matches)) {
+                        $diskonNominal = (int) str_replace(['.', ','], '', $matches[2]);
+                    }
+                    $hargaBersih = $harga - $diskonNominal;
+                    
+                    $subtotal += ($hargaBersih * $qty);
+                } else {
+                    // Fallback to default volume if not provided
+                    $harga = $item->harga_per_m2;
+                    $diskonNominal = 0;
+                    if (preg_match('/(Potongan|Diskon\/Item): Rp ([0-9,.]+)/', $item->deskripsi_tambahan, $matches)) {
+                        $diskonNominal = (int) str_replace(['.', ','], '', $matches[2]);
+                    }
+                    $subtotal += (($harga - $diskonNominal) * $item->volume);
+                }
+            }
+            
+            $customTotal = max(0, $subtotal - $offer->diskon_global);
+        }
 
         PurchaseOrder::create([
             'offer_id' => $offer->id,
@@ -43,6 +78,8 @@ class PurchaseOrderController extends Controller
             'phone' => $request->phone,
             'email' => $request->email,
             'status' => 'pending',
+            'custom_quantities' => $customQuantities,
+            'custom_total' => $customTotal,
         ]);
 
         return redirect()->route('client.dashboard')->with('success', 'Purchase Order berhasil dibuat dan sedang menunggu persetujuan.');
@@ -86,21 +123,38 @@ class PurchaseOrderController extends Controller
                 // Check if invoice already exists to avoid duplicates
                 $existingInvoice = \App\Models\Invoice::where('offer_id', $offer->id)->first();
                 if (!$existingInvoice) {
+                    $total = $po->custom_total ?? $offer->total_keseluruhan;
                     \App\Models\Invoice::create([
                         'offer_id' => $offer->id,
+                        'purchase_order_id' => $po->id,
                         'no_invoice' => 'INV-' . date('Ymd') . '-' . $offer->id,
                         'nama_klien' => $po->name,
-                        'total_penawaran' => $offer->total_keseluruhan,
+                        'total_penawaran' => $total,
                         'total_tambahan' => 0,
                         'diskon' => 0,
-                        'grand_total' => $offer->total_keseluruhan,
+                        'grand_total' => $total,
                         'total_dp' => 0,
-                        'sisa_pembayaran' => $offer->total_keseluruhan,
+                        'sisa_pembayaran' => $total,
                     ]);
                 }
             }
         }
 
         return back()->with('success', 'Status PO berhasil diperbarui menjadi ' . ucfirst($request->status));
+    }
+
+    /**
+     * Display the professional print template for a Purchase Order.
+     */
+    public function print($id)
+    {
+        $po = PurchaseOrder::with('offer.items', 'offer.jasaItems')->findOrFail($id);
+        
+        // Ensure client can only print their own POs
+        if (Auth::user()->role === 'client' && $po->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses ke Purchase Order ini.');
+        }
+
+        return view('po.print', compact('po'));
     }
 }

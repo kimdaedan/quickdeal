@@ -63,6 +63,11 @@
                 <p class="text-gray-700 mt-2">Dengan Hormat,</p>
             </section>
 
+            @if($offer->jenis_penawaran === 'produk')
+            <section class="mt-4 space-y-4 text-sm text-gray-700 leading-relaxed">
+                <p>Bersama surat ini, kami <strong>CV. DAEDAN ENTERPRISE</strong> mengajukan penawaran harga untuk produk supply kami dengan rincian sebagai berikut:</p>
+            </section>
+            @else
             <section class="mt-4 space-y-4 text-sm text-gray-700 leading-relaxed">
                 <p>Kami CV. DAEDAN ENTERPRISE adalah Perusahaan penyedia Jasa dan Produk, didirikan pada tanggal 4 April 2026, website <a href="https://suratpenawaran.biz.id" class="text-blue-600 underline">https://suratpenawaran.biz.id</a>.</p>
                 <div>
@@ -75,6 +80,7 @@
                 </div>
                 <p>Dengan ini kami sampaikan penawaran Upah Jasa :</p>
             </section>
+            @endif
 
             {{-- PHP LOGIC --}}
             @php
@@ -85,87 +91,165 @@
 
             <section class="mt-8">
                 <div class="w-full overflow-x-auto">
-                    @foreach($groupedItems as $kategori => $items)
-                    <div class="mb-8">
-                        <h4 class="font-bold text-gray-800 mb-2 uppercase border-b-2 border-gray-800 inline-block text-sm">{{ $kategori ?: 'Kategori Pekerjaan' }}</h4>
-                        <table class="w-full text-left border-collapse mb-4">
+                    @if($offer->jenis_penawaran === 'produk')
+                        {{-- TABEL PRODUK --}}
+                        <table class="w-full text-left border-collapse border border-gray-800 text-xs mb-4">
                             <thead class="bg-gray-800 text-white">
                                 <tr>
-                                    <th class="py-2 px-2 font-semibold uppercase text-xs">Nama Jasa / Produk</th>
-                                    <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Volume</th>
-                                    <th class="py-2 px-2 font-semibold uppercase text-xs text-center">Satuan</th>
-                                    <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Harga Satuan</th>
-                                    <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Total</th>
+                                    <th class="py-2 px-2 border border-gray-600 text-center w-[5%]">No</th>
+                                    <th class="py-2 px-2 border border-gray-600 w-[25%]">Nama Produk</th>
+                                    <th class="py-2 px-2 border border-gray-600 w-[20%]">Keterangan</th>
+                                    <th class="py-2 px-2 border border-gray-600 w-[15%] text-right">Harga Satuan</th>
+                                    <th class="py-2 px-2 border border-gray-600 w-[5%] text-center">Qty</th>
+                                    <th class="py-2 px-2 border border-gray-600 w-[12%] text-right">Diskon</th>
+                                    <th class="py-2 px-2 border border-gray-600 w-[18%] text-right">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @php $subtotalKategori = 0; @endphp
-                                @foreach($items as $item)
-                                @php
-                                    $totalItem = $item->volume * $item->harga_per_m2;
-                                    $subtotalKategori += $totalItem;
-                                    $p = \App\Models\Product::where('nama_jasa', $item->nama_produk)->first();
-                                    $satuan = $item->deskripsi_tambahan ?: ($p->satuan ?? '-');
-                                @endphp
-                                <tr class="border-b border-gray-200">
-                                    <td class="py-1 px-2 text-xs text-gray-700">{{ $item->nama_produk }}</td>
-                                    <td class="py-1 px-2 text-xs text-gray-700 text-right">{{ $item->volume + 0 }}</td>
-                                    <td class="py-1 px-2 text-xs text-gray-700 text-center">{{ $satuan }}</td>
-                                    <td class="py-1 px-2 text-xs text-gray-700 text-right">Rp {{ number_format($item->harga_per_m2, 0, ',', '.') }}</td>
-                                    <td class="py-1 px-2 text-xs text-gray-700 text-right font-medium">Rp {{ number_format($totalItem, 0, ',', '.') }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                            @if($showTotal)
-                            <tfoot>
-                                <tr class="bg-gray-50 font-bold text-gray-800">
-                                    <td colspan="4" class="py-2 px-2 text-xs text-right uppercase">Subtotal</td>
-                                    <td class="py-2 px-2 text-xs text-right">Rp {{ number_format($subtotalKategori, 0, ',', '.') }}</td>
-                                </tr>
-                            </tfoot>
-                            @endif
-                        </table>
-                    </div>
-                    @endforeach
+                                @php $subtotalSemua = 0; @endphp
+                                @foreach($offer->items as $index => $item)
+                                    @php
+                                        $harga = $item->harga_per_m2;
+                                        $qty = $item->volume;
+                                        $totalBaris = $harga * $qty;
+                                        $diskonNominal = 0;
+                                        $keterangan = $item->deskripsi_tambahan;
 
-                    @if($offer->jasaItems->isNotEmpty())
-                    <div class="mt-4">
-                        <h4 class="font-bold text-gray-800 mb-2 uppercase border-b-2 border-gray-800 inline-block text-sm">Pengerjaan Tambahan</h4>
-                        <table class="w-full text-left border-collapse">
-                            <thead class="bg-gray-800 text-white">
-                                <tr>
-                                    <th class="py-2 px-2 font-semibold uppercase text-xs" colspan="2">Deskripsi Pengerjaan</th>
-                                    <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Vol/Sat</th>
-                                    <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Harga Satuan</th>
-                                    <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($offer->jasaItems as $jasa)
-                                <tr class="border-b border-gray-200">
-                                    <td class="py-1 px-2 text-xs" colspan="2">{{ $jasa->nama_jasa }}</td>
-                                    <td class="py-1 px-2 text-xs text-right">{{ $jasa->volume + 0 }} {{ $jasa->satuan }}</td>
-                                    <td class="py-1 px-2 text-xs text-right">Rp {{ number_format($jasa->harga_satuan ?? ($jasa->harga_jasa / ($jasa->volume ?: 1)), 0, ',', '.') }}</td>
-                                    <td class="py-1 px-2 text-xs text-right font-medium">Rp {{ number_format($jasa->harga_jasa, 0, ',', '.') }}</td>
-                                </tr>
+                                        if (preg_match('/(Potongan|Diskon\/Item): Rp ([0-9,.]+)/', $item->deskripsi_tambahan, $matches)) {
+                                            $diskonNominal = (int) str_replace(['.', ','], '', $matches[2]);
+                                            $totalBaris -= $diskonNominal;
+                                            $keterangan = preg_replace('/ \| Potongan: Rp [0-9,.]+/', '', $keterangan);
+                                            $keterangan = preg_replace('/Potongan: Rp [0-9,.]+/', '', $keterangan);
+                                            $keterangan = preg_replace('/Diskon\/Item: Rp [0-9,.]+/', '', $keterangan);
+                                        }
+
+                                        $subtotalSemua += $totalBaris;
+                                    @endphp
+                                    <tr class="border-b border-gray-300">
+                                        <td class="py-1 px-2 border-x border-gray-300 text-center align-middle">{{ $index + 1 }}</td>
+                                        <td class="py-1 px-2 border-x border-gray-300 font-bold text-gray-700 align-middle leading-tight">
+                                            {{ $item->nama_produk }}
+                                        </td>
+                                        <td class="py-1 px-2 border-x border-gray-300 text-xs align-middle leading-tight">
+                                            {!! nl2br(e($keterangan ?: '-')) !!}
+                                        </td>
+                                        <td class="py-1 px-2 border-x border-gray-300 text-right whitespace-nowrap align-middle">
+                                            Rp {{ number_format($harga, 0, ',', '.') }}
+                                        </td>
+                                        <td class="py-1 px-2 border-x border-gray-300 text-center align-middle">
+                                            {{ $qty }}
+                                        </td>
+                                        <td class="py-1 px-2 border-x border-gray-300 text-right text-red-600 text-xs whitespace-nowrap align-middle">
+                                            {{ $diskonNominal > 0 ? '- Rp ' . number_format($diskonNominal, 0, ',', '.') : '-' }}
+                                        </td>
+                                        <td class="py-1 px-2 border-x border-gray-300 text-right font-bold whitespace-nowrap align-middle">
+                                            Rp {{ number_format($totalBaris, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
                                 @endforeach
                             </tbody>
                             @if($showTotal)
-                            <tfoot>
-                                <tr class="bg-gray-50 font-bold text-gray-800">
-                                    <td colspan="4" class="py-2 px-2 text-xs text-right uppercase">Total Pengerjaan Tambahan</td>
-                                    <td class="py-2 px-2 text-xs text-right">Rp {{ number_format($totalJasa, 0, ',', '.') }}</td>
-                                </tr>
-                            </tfoot>
+                                <tfoot>
+                                    @if($offer->diskon_global > 0)
+                                        <tr class="bg-gray-50">
+                                            <td colspan="6" class="py-2 px-2 border border-gray-300 text-right font-semibold text-gray-600 text-xs uppercase">Subtotal</td>
+                                            <td class="py-2 px-2 border border-gray-300 text-right font-semibold whitespace-nowrap text-xs">
+                                                Rp {{ number_format($subtotalSemua, 0, ',', '.') }}
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    <tr class="bg-gray-100 font-bold text-gray-800">
+                                        <td colspan="6" class="py-2 px-2 border border-gray-300 text-right text-xs uppercase">Grand Total</td>
+                                        <td class="py-2 px-2 border border-gray-300 text-right font-bold text-sm text-gray-900 whitespace-nowrap">
+                                            Rp {{ number_format($offer->total_keseluruhan, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                </tfoot>
                             @endif
                         </table>
-                    </div>
+                    @else
+                        {{-- TABEL JASA --}}
+                        @foreach($groupedItems as $kategori => $items)
+                        <div class="mb-8">
+                            <h4 class="font-bold text-gray-800 mb-2 uppercase border-b-2 border-gray-800 inline-block text-sm">{{ $kategori ?: 'Kategori Pekerjaan' }}</h4>
+                            <table class="w-full text-left border-collapse mb-4">
+                                <thead class="bg-gray-800 text-white">
+                                    <tr>
+                                        <th class="py-2 px-2 font-semibold uppercase text-xs">Nama Jasa / Produk</th>
+                                        <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Volume</th>
+                                        <th class="py-2 px-2 font-semibold uppercase text-xs text-center">Satuan</th>
+                                        <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Harga Satuan</th>
+                                        <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $subtotalKategori = 0; @endphp
+                                    @foreach($items as $item)
+                                    @php
+                                        $totalItem = $item->volume * $item->harga_per_m2;
+                                        $subtotalKategori += $totalItem;
+                                        $p = \App\Models\Product::where('nama_jasa', $item->nama_produk)->first();
+                                        $satuan = $item->deskripsi_tambahan ?: ($p->satuan ?? '-');
+                                    @endphp
+                                    <tr class="border-b border-gray-200">
+                                        <td class="py-1 px-2 text-xs text-gray-700">{{ $item->nama_produk }}</td>
+                                        <td class="py-1 px-2 text-xs text-gray-700 text-right">{{ $item->volume + 0 }}</td>
+                                        <td class="py-1 px-2 text-xs text-gray-700 text-center">{{ $satuan }}</td>
+                                        <td class="py-1 px-2 text-xs text-gray-700 text-right">Rp {{ number_format($item->harga_per_m2, 0, ',', '.') }}</td>
+                                        <td class="py-1 px-2 text-xs text-gray-700 text-right font-medium">Rp {{ number_format($totalItem, 0, ',', '.') }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                                @if($showTotal)
+                                <tfoot>
+                                    <tr class="bg-gray-50 font-bold text-gray-800">
+                                        <td colspan="4" class="py-2 px-2 text-xs text-right uppercase">Subtotal</td>
+                                        <td class="py-2 px-2 text-xs text-right">Rp {{ number_format($subtotalKategori, 0, ',', '.') }}</td>
+                                    </tr>
+                                </tfoot>
+                                @endif
+                            </table>
+                        </div>
+                        @endforeach
+
+                        @if($offer->jasaItems->isNotEmpty())
+                        <div class="mt-4">
+                            <h4 class="font-bold text-gray-800 mb-2 uppercase border-b-2 border-gray-800 inline-block text-sm">Pengerjaan Tambahan</h4>
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-gray-800 text-white">
+                                    <tr>
+                                        <th class="py-2 px-2 font-semibold uppercase text-xs" colspan="2">Deskripsi Pengerjaan</th>
+                                        <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Vol/Sat</th>
+                                        <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Harga Satuan</th>
+                                        <th class="py-2 px-2 font-semibold uppercase text-xs text-right">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($offer->jasaItems as $jasa)
+                                    <tr class="border-b border-gray-200">
+                                        <td class="py-1 px-2 text-xs" colspan="2">{{ $jasa->nama_jasa }}</td>
+                                        <td class="py-1 px-2 text-xs text-right">{{ $jasa->volume + 0 }} {{ $jasa->satuan }}</td>
+                                        <td class="py-1 px-2 text-xs text-right">Rp {{ number_format($jasa->harga_satuan ?? ($jasa->harga_jasa / ($jasa->volume ?: 1)), 0, ',', '.') }}</td>
+                                        <td class="py-1 px-2 text-xs text-right font-medium">Rp {{ number_format($jasa->harga_jasa, 0, ',', '.') }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                                @if($showTotal)
+                                <tfoot>
+                                    <tr class="bg-gray-50 font-bold text-gray-800">
+                                        <td colspan="4" class="py-2 px-2 text-xs text-right uppercase">Total Pengerjaan Tambahan</td>
+                                        <td class="py-2 px-2 text-xs text-right">Rp {{ number_format($totalJasa, 0, ',', '.') }}</td>
+                                    </tr>
+                                </tfoot>
+                                @endif
+                            </table>
+                        </div>
+                        @endif
                     @endif
-
                 </div>
             </section>
 
-            @if($showTotal)
+            @if($showTotal && $offer->jenis_penawaran !== 'produk')
             <section class="mt-6 flex flex-col items-end gap-2" id="grand-total-block">
                 @if($offer->diskon_global > 0)
                 <div class="w-full md:w-1/2 bg-red-50 text-red-700 p-3 border border-red-100 rounded-lg flex justify-between items-center">
@@ -182,6 +266,21 @@
             </section>
             @endif
 
+            @if($offer->jenis_penawaran === 'produk')
+            <section class="mt-12 text-sm text-gray-700 leading-relaxed bg-slate-50 p-6 rounded-xl border border-slate-100">
+                <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Keterangan
+                </h4>
+                <ul class="list-disc list-inside space-y-1 text-slate-600">
+                    <li>Harga sudah termasuk PPN.</li>
+                    <li>Barang yang sudah dibeli tidak dapat dikembalikan.</li>
+                    <li>Rekening: <strong>BCA a.n CV. DAEDAN ENTERPRISE</strong>.</li>
+                </ul>
+            </section>
+            @else
             <section class="mt-12 text-sm text-gray-700 leading-relaxed bg-slate-50 p-6 rounded-xl border border-slate-100">
                 <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -199,6 +298,7 @@
                     <li>Finish.</li>
                 </ul>
             </section>
+            @endif
 
             <section class="mt-12 flex justify-end">
                 <div class="text-center">

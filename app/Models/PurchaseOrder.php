@@ -17,6 +17,12 @@ class PurchaseOrder extends Model
         'phone',
         'email',
         'status',
+        'custom_quantities',
+        'custom_total',
+    ];
+
+    protected $casts = [
+        'custom_quantities' => 'array',
     ];
 
     public function offer()
@@ -27,5 +33,10 @@ class PurchaseOrder extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
     }
 }
