@@ -15,16 +15,65 @@
             @endif
         </div>
 
-        <form action="{{ route('invoice.histori') }}" method="GET" class="mb-6">
-            <div class="flex gap-2">
-                <input type="text"
-                       name="search"
-                       placeholder="Cari No. Invoice, Nama Klien, atau No. Surat Penawaran..."
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-gray-800"
-                       value="{{ $search ?? '' }}">
-                <button type="submit" class="mt-1 bg-gray-800 text-white font-bold py-2 px-6 rounded hover:bg-gray-700 transition">
-                    Cari
-                </button>
+        <form action="{{ route('invoice.histori') }}" method="GET" class="mb-6 bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {{-- Search Input --}}
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Cari Kata Kunci</label>
+                    <input type="text"
+                           name="search"
+                           placeholder="Cari No. Invoice, Klien, atau No. Penawaran..."
+                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-850 focus:ring-gray-850 text-sm"
+                           value="{{ $search ?? '' }}">
+                </div>
+                
+                {{-- Status Filter --}}
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Status Invoice</label>
+                    <select name="status" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-850 focus:ring-gray-850 text-sm">
+                        <option value="">Semua Status</option>
+                        <option value="paid" {{ ($statusFilter ?? '') === 'paid' ? 'selected' : '' }}>Paid (Lunas)</option>
+                        <option value="due" {{ ($statusFilter ?? '') === 'due' ? 'selected' : '' }}>Due (Belum Lunas)</option>
+                        <option value="overdue" {{ ($statusFilter ?? '') === 'overdue' ? 'selected' : '' }}>Jatuh Tempo (> 1 Bulan)</option>
+                        @if(auth()->user()->role !== 'client')
+                        <option value="pending_verification" {{ ($statusFilter ?? '') === 'pending_verification' ? 'selected' : '' }}>Menunggu Verifikasi</option>
+                        @endif
+                    </select>
+                </div>
+                
+                {{-- Submit Button --}}
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-gray-700 transition text-sm">
+                        Terapkan Filter
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-gray-150">
+                {{-- Start Date --}}
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tanggal Mulai</label>
+                    <input type="date"
+                           name="start_date"
+                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-850 focus:ring-gray-850 text-sm"
+                           value="{{ $startDate ?? '' }}">
+                </div>
+                
+                {{-- End Date --}}
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tanggal Selesai</label>
+                    <input type="date"
+                           name="end_date"
+                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-850 focus:ring-gray-850 text-sm"
+                           value="{{ $endDate ?? '' }}">
+                </div>
+                
+                {{-- Reset Button --}}
+                <div class="md:col-span-2 flex items-end justify-end">
+                    <a href="{{ route('invoice.histori') }}" class="text-xs text-gray-500 hover:text-gray-800 underline">
+                        Reset Filter
+                    </a>
+                </div>
             </div>
         </form>
 
@@ -97,6 +146,10 @@
                                 @if($invoice->status === 'paid')
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
                                         Paid
+                                    </span>
+                                @elseif($invoice->created_at->lt(now()->subMonth()))
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 border border-red-200">
+                                        Jatuh Tempo
                                     </span>
                                 @else
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
@@ -221,7 +274,7 @@
         </div>
 
         <div class="mt-6">
-            {{ $invoices->appends(['search' => $search ?? ''])->links() }}
+            {{ $invoices->appends(request()->query())->links() }}
         </div>
 
     </div>

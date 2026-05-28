@@ -14,8 +14,11 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
-        // Ambil kata kunci pencarian
+        // Ambil kata kunci dan filter
         $search = $request->input('search');
+        $statusFilter = $request->input('status');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
         // Mulai query ke model Invoice
         $query = Invoice::query();
@@ -33,13 +36,50 @@ class InvoiceController extends Controller
             });
         }
 
-        // Ambil data terbaru dengan pagination (15 per halaman)
-        $invoices = $query->latest()->paginate(15);
+        // Filter Status
+        if ($statusFilter) {
+            if ($statusFilter === 'paid') {
+                $query->where('status', 'paid');
+            } elseif ($statusFilter === 'due') {
+                $query->where('status', '!=', 'paid')
+                      ->where('created_at', '>=', now()->subMonth());
+            } elseif ($statusFilter === 'overdue') {
+                $query->where('status', '!=', 'paid')
+                      ->where('created_at', '<', now()->subMonth());
+            } elseif ($statusFilter === 'pending_verification') {
+                $query->whereHas('payments', function($q) {
+                    $q->where('status_verifikasi', 'pending');
+                });
+            }
+        }
 
-        // Kirim data ke view
+        // Filter Rentang Tanggal
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        // Kueri Pengurutan Multi-Prioritas:
+        // 1. Ada bukti transfer pending (Menunggu Verifikasi)
+        // 2. Jatuh Tempo (Belum lunas & > 1 bulan sejak dibuat)
+        // 3. Reguler (Terbaru dibuat)
+        $invoices = $query->orderByRaw("CASE 
+            WHEN (SELECT COUNT(*) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id AND invoice_payments.status_verifikasi = 'pending') > 0 THEN 1 
+            WHEN status != 'paid' AND created_at < DATE_SUB(NOW(), INTERVAL 1 MONTH) THEN 2 
+            ELSE 3 
+        END ASC")
+        ->orderBy('created_at', 'desc')
+        ->paginate(15);
+
+        // Kirim data ke view beserta filter aktif
         return view('invoice.histori', [
-            'invoices' => $invoices,
-            'search' => $search ?? ''
+            'invoices'     => $invoices,
+            'search'       => $search ?? '',
+            'statusFilter' => $statusFilter ?? '',
+            'startDate'    => $startDate ?? '',
+            'endDate'      => $endDate ?? '',
         ]);
     }
 
