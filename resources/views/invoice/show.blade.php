@@ -108,9 +108,70 @@
                     </tr>
 
                     @foreach($invoice->payments as $payment)
-                    <tr class="font-medium text-gray-600">
-                        <td colspan="2" class="border border-black p-2 text-right">{{ $payment->keterangan }}</td>
-                        <td class="border border-black p-2 text-right text-green-600">- Rp {{ number_format($payment->jumlah, 0, ',', '.') }}</td>
+                    <tr class="font-medium text-gray-600 {{ $payment->status_verifikasi === 'pending' ? 'bg-amber-50/50' : '' }}">
+                        <td colspan="2" class="border border-black p-2 text-right">
+                            <div class="flex flex-col items-end">
+                                <div class="flex items-center gap-2 mb-1">
+                                    @if($payment->status_verifikasi === 'pending')
+                                        <span class="px-2 py-0.5 inline-flex text-[9px] font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-200 animate-pulse">
+                                            Menunggu Verifikasi
+                                        </span>
+                                    @else
+                                        <span class="px-2 py-0.5 inline-flex text-[9px] font-bold rounded-full bg-green-100 text-green-800 border border-green-200">
+                                            Terverifikasi
+                                        </span>
+                                    @endif
+                                    <span class="font-bold text-gray-800">{{ $payment->keterangan }}</span>
+                                </div>
+                                
+                                @if($payment->bukti_transfer)
+                                @php
+                                    $urlBukti = str_starts_with($payment->bukti_transfer, 'bukti_transfer/') ? asset($payment->bukti_transfer) : asset('storage/' . $payment->bukti_transfer);
+                                @endphp
+                                <a href="{{ $urlBukti }}" target="_blank" class="text-xs text-blue-600 hover:underline mt-1 print:hidden flex items-center gap-1 font-semibold">
+                                    📸 Lihat Bukti Transfer
+                                </a>
+                                <span class="hidden print:inline text-[10px] text-gray-500 mt-0.5 font-normal">
+                                    (Bukti transfer dilampirkan)
+                                </span>
+                                @endif
+
+                                {{-- Form Verifikasi & Tolak Pembayaran Khusus Admin --}}
+                                @if($payment->status_verifikasi === 'pending' && auth()->user()->role !== 'client')
+                                <div class="mt-3 p-3 bg-white border border-amber-200 rounded-md shadow-sm w-full max-w-md text-left print:hidden">
+                                    <p class="text-xs font-bold text-gray-700 mb-2">Tindakan Admin:</p>
+                                    <form action="{{ route('invoice.verify_payment', $payment->id) }}" method="POST" class="flex flex-wrap gap-2 items-center">
+                                        @csrf
+                                        <div class="relative rounded-md shadow-sm w-36">
+                                            <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 text-xs">Rp</span>
+                                            </div>
+                                            <input type="number" name="jumlah" required max="{{ $invoice->sisa_pembayaran }}" placeholder="Nominal" class="block w-full pl-7 pr-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-bold transition">
+                                            Setujui
+                                        </button>
+                                    </form>
+                                    <div class="mt-2 pt-2 border-t border-gray-100 flex justify-end">
+                                        <form action="{{ route('invoice.reject_payment', $payment->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menolak dan menghapus bukti transfer ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-800 text-xs font-bold flex items-center gap-0.5 transition">
+                                                ❌ Tolak Bukti Transfer
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                        </td>
+                        <td class="border border-black p-2 text-right text-sm">
+                            @if($payment->status_verifikasi === 'pending')
+                                <span class="text-amber-600 italic text-xs">Menunggu Verifikasi</span>
+                            @else
+                                <span class="text-green-600 font-bold">- Rp {{ number_format($payment->jumlah, 0, ',', '.') }}</span>
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
 

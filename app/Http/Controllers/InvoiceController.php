@@ -289,27 +289,123 @@ class InvoiceController extends Controller
      */
     public function addPayment(Request $request, Invoice $invoice)
     {
+        $role = auth()->user()->role;
+        
+        if ($role === 'client') {
+            // Client: Keterangan (wajib), Bukti Transfer (wajib), nominal (tidak ada, di-set 0 pending)
+            $request->validate([
+                'keterangan'     => 'required|string|max:255',
+                'bukti_transfer' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+            
+            if ($invoice->sisa_pembayaran <= 0) {
+                return redirect()->back()->with('error', 'Invoice ini sudah lunas.');
+            }
+            
+            // Simpan berkas bukti transfer langsung ke folder public/bukti_transfer
+            $buktiTransferPath = null;
+            if ($request->hasFile('bukti_transfer')) {
+                $file = $request->file('bukti_transfer');
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('bukti_transfer'), $filename);
+                $buktiTransferPath = 'bukti_transfer/' . $filename;
+            }
+            
+            // Simpan data pembayaran sebagai pending dengan jumlah = 0
+            $invoice->payments()->create([
+                'keterangan'        => $request->keterangan,
+                'jumlah'            => 0,
+                'bukti_transfer'    => $buktiTransferPath,
+                'status_verifikasi' => 'pending',
+            ]);
+            
+            return redirect()->back()->with('success', 'Bukti transfer berhasil diunggah! Menunggu verifikasi admin.');
+            
+        } else {
+            // Admin: Keterangan (wajib), Jumlah (wajib), Bukti Transfer (opsional), status langsung verified
+            $request->validate([
+                'keterangan'     => 'required|string|max:255',
+                'jumlah'         => 'required|numeric|min:1|max:' . $invoice->sisa_pembayaran,
+                'bukti_transfer' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+            
+            if ($invoice->sisa_pembayaran <= 0) {
+                return redirect()->back()->with('error', 'Invoice ini sudah lunas.');
+            }
+            
+            // Simpan berkas bukti transfer (jika ada) langsung ke folder public/bukti_transfer
+            $buktiTransferPath = null;
+            if ($request->hasFile('bukti_transfer')) {
+                $file = $request->file('bukti_transfer');
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('bukti_transfer'), $filename);
+                $buktiTransferPath = 'bukti_transfer/' . $filename;
+            }
+            
+            // Simpan data pembayaran langsung terverifikasi
+            $invoice->payments()->create([
+                'keterangan'        => $request->keterangan,
+                'jumlah'            => $request->jumlah,
+                'bukti_transfer'    => $buktiTransferPath,
+                'status_verifikasi' => 'verified',
+            ]);
+            
+            // Kalkulasi ulang total DP yang terverifikasi
+            $total_dp = $invoice->payments()->where('status_verifikasi', 'verified')->sum('jumlah');
+            
+            // Kalkulasi ulang sisa pembayaran
+            $sisa_pembayaran = $invoice->grand_total - $total_dp;
+            if ($sisa_pembayaran < 0) {
+                $sisa_pembayaran = 0;
+            }
+            
+            // Tentukan status
+            $status = ($sisa_pembayaran <= 0) ? 'paid' : 'due';
+            
+            // Update record invoice utama
+            $invoice->update([
+                'total_dp'        => $total_dp,
+                'sisa_pembayaran' => $sisa_pembayaran,
+                'status'          => $status
+            ]);
+            
+            return redirect()->back()->with('success', 'Pembayaran berhasil ditambahkan oleh Admin!');
+        }
+    }
+
+    /**
+     * Memverifikasi pembayaran pending oleh Admin.
+     */
+    public function verifyPayment(Request $request, $id)
+    {
         if (auth()->user()->role === 'client') {
             abort(403, 'Anda tidak memiliki akses ke tindakan ini.');
         }
+
+        $payment = \App\Models\InvoicePayment::findOrFail($id);
+        $invoice = $payment->invoice;
+
+        if ($payment->status_verifikasi !== 'pending') {
+            return redirect()->back()->with('error', 'Pembayaran ini sudah diverifikasi sebelumnya.');
+        }
+
         $request->validate([
-            'keterangan' => 'required|string',
-            'jumlah'     => 'required|numeric|min:1',
+            'jumlah' => 'required|numeric|min:1|max:' . $invoice->sisa_pembayaran,
         ]);
 
-        // Simpan ke invoice_payments
-        $invoice->payments()->create([
-            'keterangan' => $request->keterangan,
-            'jumlah'     => $request->jumlah,
+        // Update data pembayaran
+        $payment->update([
+            'jumlah'            => $request->jumlah,
+            'status_verifikasi' => 'verified',
         ]);
 
-        // Kalkulasi ulang total DP yg sudah dibayarkan
-        $total_dp = $invoice->payments()->sum('jumlah');
+        // Kalkulasi ulang total DP yang terverifikasi
+        $total_dp = $invoice->payments()->where('status_verifikasi', 'verified')->sum('jumlah');
 
         // Kalkulasi ulang sisa pembayaran
         $sisa_pembayaran = $invoice->grand_total - $total_dp;
         if ($sisa_pembayaran < 0) {
-            $sisa_pembayaran = 0; // opsional: biarkan 0 jika overpaid
+            $sisa_pembayaran = 0;
         }
 
         // Tentukan status
@@ -322,6 +418,39 @@ class InvoiceController extends Controller
             'status'          => $status
         ]);
 
-        return redirect()->back()->with('success', 'Pembayaran berhasil ditambahkan!');
+        return redirect()->back()->with('success', 'Pembayaran berhasil diverifikasi dan disetujui!');
+    }
+
+    /**
+     * Menolak pembayaran pending oleh Admin.
+     */
+    public function rejectPayment($id)
+    {
+        if (auth()->user()->role === 'client') {
+            abort(403, 'Anda tidak memiliki akses ke tindakan ini.');
+        }
+
+        $payment = \App\Models\InvoicePayment::findOrFail($id);
+
+        if ($payment->status_verifikasi !== 'pending') {
+            return redirect()->back()->with('error', 'Hanya pembayaran pending yang dapat ditolak.');
+        }
+
+        // Hapus file bukti transfer jika ada
+        if ($payment->bukti_transfer) {
+            if (str_starts_with($payment->bukti_transfer, 'bukti_transfer/')) {
+                $filePath = public_path($payment->bukti_transfer);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            } else {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($payment->bukti_transfer);
+            }
+        }
+
+        // Hapus data pembayaran dari database
+        $payment->delete();
+
+        return redirect()->back()->with('success', 'Pembayaran berhasil ditolak dan dihapus!');
     }
 }

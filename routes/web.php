@@ -137,6 +137,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/edit/{invoice}', [InvoiceController::class, 'edit'])->name('edit');
         Route::put('/update/{invoice}', [InvoiceController::class, 'update'])->name('update');
         Route::post('/add-payment/{invoice}', [InvoiceController::class, 'addPayment'])->name('add_payment');
+        Route::post('/verify-payment/{payment}', [InvoiceController::class, 'verifyPayment'])->name('verify_payment');
+        Route::delete('/reject-payment/{payment}', [InvoiceController::class, 'rejectPayment'])->name('reject_payment');
         Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
         Route::get('/{id}/print', [InvoiceController::class, 'print'])->name('print');
     });
@@ -189,3 +191,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/print', [SkpController::class, 'print'])->name('print');
     });
 });
+
+
+

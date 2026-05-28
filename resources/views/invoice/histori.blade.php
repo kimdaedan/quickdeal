@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div x-data="{ addPaymentOpen: false, invoiceId: '', invoiceSisa: 0 }" class="container mx-auto my-12 px-4">
+<div x-data="{ addPaymentOpen: false, invoiceId: '', invoiceSisa: 0, paymentId: '', keterangan: '', buktiTransferUrl: '' }" class="container mx-auto my-12 px-4">
     <div class="max-w-7xl mx-auto">
 
         <div class="flex justify-between items-center mb-6">
@@ -93,15 +93,28 @@
 
                         {{-- Status Badge --}}
                         <td class="px-6 py-4 text-center whitespace-nowrap">
-                            @if($invoice->status === 'paid')
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
-                                    Paid
-                                </span>
-                            @else
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
-                                    Due
-                                </span>
-                            @endif
+                            <div class="flex flex-col items-center">
+                                @if($invoice->status === 'paid')
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
+                                        Paid
+                                    </span>
+                                @else
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                        Due
+                                    </span>
+                                @endif
+                                
+                                @if(auth()->user()->role !== 'client')
+                                    @php
+                                        $pendingCount = $invoice->payments()->where('status_verifikasi', 'pending')->count();
+                                    @endphp
+                                    @if($pendingCount > 0)
+                                        <span class="mt-1.5 px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded-full bg-red-100 text-red-800 border border-red-200 animate-pulse">
+                                            ⚠️ {{ $pendingCount }} Pending
+                                        </span>
+                                    @endif
+                                @endif
+                            </div>
                         </td>
 
                         {{-- Action Dropdown (DIPERBAIKI) --}}
@@ -157,14 +170,32 @@
                                             </button>
                                         </form>
 
+                                        @endif
+
                                         {{-- Add Payment Trigger --}}
                                         @if($invoice->status !== 'paid')
-                                        <button @click.prevent="addPaymentOpen = true; invoiceId = {{ $invoice->id }}; invoiceSisa = {{ $invoice->sisa_pembayaran }}" class="group flex w-full items-center px-4 py-2 text-sm text-green-600 hover:bg-green-50 hover:text-green-800 border-t border-gray-100" role="menuitem">
+                                        <button @click.prevent="addPaymentOpen = true; invoiceId = {{ $invoice->id }}; invoiceSisa = {{ $invoice->sisa_pembayaran }}; paymentId = ''; keterangan = ''; buktiTransferUrl = ''" class="group flex w-full items-center px-4 py-2 text-sm text-green-600 hover:bg-green-50 hover:text-green-800 border-t border-gray-100" role="menuitem">
                                             <svg class="mr-3 h-5 w-5 text-green-400 group-hover:text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                             </svg>
                                             Add Payment
                                         </button>
+                                        
+                                        @if(auth()->user()->role !== 'client')
+                                            @php
+                                                $pendingPayments = $invoice->payments()->where('status_verifikasi', 'pending')->get();
+                                            @endphp
+                                            @foreach($pendingPayments as $p)
+                                                @php
+                                                    $urlBukti = str_starts_with($p->bukti_transfer, 'bukti_transfer/') ? asset($p->bukti_transfer) : asset('storage/' . $p->bukti_transfer);
+                                                @endphp
+                                                <button @click.prevent="addPaymentOpen = true; invoiceId = {{ $invoice->id }}; invoiceSisa = {{ $invoice->sisa_pembayaran }}; paymentId = '{{ $p->id }}'; keterangan = '{{ addslashes($p->keterangan) }}'; buktiTransferUrl = '{{ $urlBukti }}'" class="group flex w-full items-center px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 hover:text-amber-800 border-t border-gray-50" role="menuitem">
+                                                    <svg class="mr-3 h-5 w-5 text-amber-500 group-hover:text-amber-600 animate-pulse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    Verifikasi: {{ Str::limit($p->keterangan, 15) }}
+                                                </button>
+                                            @endforeach
                                         @endif
                                         @endif
                                     </div>
@@ -226,7 +257,7 @@
                  x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
                  class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
                 
-                <form :action="'{{ url('/invoice/add-payment') }}/' + invoiceId" method="POST">
+                <form :action="paymentId ? '{{ url('/invoice/verify-payment') }}/' + paymentId : '{{ url('/invoice/add-payment') }}/' + invoiceId" method="POST" enctype="multipart/form-data">
                     @csrf
                     
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
@@ -238,7 +269,7 @@
                             </div>
                             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                    Tambah Pembayaran Baru
+                                    <span x-text="paymentId ? 'Verifikasi Pembayaran Klien' : 'Tambah Pembayaran Baru'"></span>
                                 </h3>
                                 <div class="mt-2 text-sm text-gray-500 mb-4">
                                     Sisa Tagihan saat ini: <strong class="text-red-500">Rp <span x-text="new Intl.NumberFormat('id-ID').format(invoiceSisa)"></span></strong>
@@ -247,13 +278,43 @@
                                 <div class="space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Keterangan Pembayaran <span class="text-red-500">*</span></label>
-                                        <input type="text" name="keterangan" required placeholder="Contoh: Pembayaran Termin 2, Pelunasan, dll" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <input type="text" name="keterangan" x-model="keterangan" :readonly="paymentId ? true : false" :class="paymentId ? 'bg-gray-100 cursor-not-allowed text-gray-500 font-medium' : ''" required placeholder="Contoh: Pembayaran Termin 2, Pelunasan, dll" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                     </div>
+                                    
+                                    @if(auth()->user()->role !== 'client')
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Jumlah Pembayaran (Rp) <span class="text-red-500">*</span></label>
                                         <input type="number" name="jumlah" :max="invoiceSisa" required placeholder="Contoh: 1500000" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-right font-medium text-gray-900">
-                                        <p class="text-xs text-blue-500 mt-1 italic">Tip: Biarkan sistem memvalidasi sisa pembayaran agar tidak melibihi tagihan.</p>
+                                        <p class="text-xs text-blue-500 mt-1 italic">Tip: Pastikan nominal tidak melebihi sisa tagihan.</p>
                                     </div>
+                                    @endif
+
+                                    <!-- Tampilkan pratinjau bukti transfer klien di dalam modal jika sedang verifikasi -->
+                                    <template x-if="buktiTransferUrl">
+                                        <div class="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                            <span class="block text-xs font-bold text-gray-600 mb-1">Bukti Transfer Klien:</span>
+                                            <a :href="buktiTransferUrl" target="_blank" class="block border rounded p-1 bg-white hover:opacity-95 max-w-xs mx-auto">
+                                                <img :src="buktiTransferUrl" class="max-h-48 object-contain mx-auto rounded">
+                                            </a>
+                                            <p class="text-[10px] text-gray-500 mt-1 text-center italic">Klik gambar di atas untuk memperbesar di tab baru.</p>
+                                        </div>
+                                    </template>
+
+                                    <!-- Input File (Hanya muncul jika bukan sedang memverifikasi bukti yang sudah ada) -->
+                                    <template x-if="!paymentId">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">
+                                                Bukti Transfer (Upload Foto)
+                                                @if(auth()->user()->role === 'client')
+                                                    <span class="text-red-500">*</span>
+                                                @else
+                                                    <span class="text-gray-400 font-normal">(Opsional)</span>
+                                                @endif
+                                            </label>
+                                            <input type="file" name="bukti_transfer" accept="image/*" @if(auth()->user()->role === 'client') required @endif class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 font-medium bg-white">
+                                            <p class="text-xs text-blue-500 mt-1 italic">Format file: JPG, JPEG, PNG (Maks. 2MB).</p>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>
@@ -261,12 +322,25 @@
                     
                     <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
                         <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
-                            Simpan Pembayaran
+                            <span x-text="paymentId ? 'Setujui & Verifikasi' : 'Simpan Pembayaran'"></span>
                         </button>
+                        
+                        <template x-if="paymentId">
+                            <button type="button" @click.prevent="if(confirm('Yakin ingin menolak dan menghapus bukti transfer ini?')) { $refs.deleteForm.action = '{{ url('/invoice/reject-payment') }}/' + paymentId; $refs.deleteForm.submit(); }" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                Tolak Bukti
+                            </button>
+                        </template>
+                        
                         <button type="button" @click="addPaymentOpen = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                             Batal
                         </button>
                     </div>
+                </form>
+                
+                {{-- Form Tersembunyi untuk Proses Tolak/Delete --}}
+                <form x-ref="deleteForm" method="POST" class="hidden">
+                    @csrf
+                    @method('DELETE')
                 </form>
             </div>
         </div>
