@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div x-data="{ addPaymentOpen: false, invoiceId: '', invoiceSisa: 0, paymentId: '', keterangan: '', buktiTransferUrl: '' }" class="container mx-auto my-12 px-4">
+<div x-data="{ addPaymentOpen: false, invoiceId: '', invoiceSisa: 0, paymentId: '', keterangan: '', buktiTransferUrl: '', fileError: '' }" class="container mx-auto my-12 px-4">
     <div class="max-w-7xl mx-auto">
 
         <div class="flex justify-between items-center mb-6">
@@ -80,6 +80,23 @@
         @if (session('success'))
             <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 shadow-sm" role="alert">
                 <p>{{ session('success') }}</p>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 shadow-sm" role="alert">
+                <p>{{ session('error') }}</p>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 shadow-sm" role="alert">
+                <p class="font-bold">Terjadi Kesalahan:</p>
+                <ul class="list-disc pl-5 text-sm mt-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 
@@ -227,7 +244,7 @@
 
                                         {{-- Add Payment Trigger --}}
                                         @if($invoice->status !== 'paid')
-                                        <button @click.prevent="addPaymentOpen = true; invoiceId = {{ $invoice->id }}; invoiceSisa = {{ $invoice->sisa_pembayaran }}; paymentId = ''; keterangan = ''; buktiTransferUrl = ''" class="group flex w-full items-center px-4 py-2 text-sm text-green-600 hover:bg-green-50 hover:text-green-800 border-t border-gray-100" role="menuitem">
+                                        <button @click.prevent="addPaymentOpen = true; invoiceId = {{ $invoice->id }}; invoiceSisa = {{ $invoice->sisa_pembayaran }}; paymentId = ''; keterangan = ''; buktiTransferUrl = ''; fileError = ''" class="group flex w-full items-center px-4 py-2 text-sm text-green-600 hover:bg-green-50 hover:text-green-800 border-t border-gray-100" role="menuitem">
                                             <svg class="mr-3 h-5 w-5 text-green-400 group-hover:text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                             </svg>
@@ -242,7 +259,7 @@
                                                 @php
                                                     $urlBukti = str_starts_with($p->bukti_transfer, 'bukti_transfer/') ? asset($p->bukti_transfer) : asset('storage/' . $p->bukti_transfer);
                                                 @endphp
-                                                <button @click.prevent="addPaymentOpen = true; invoiceId = {{ $invoice->id }}; invoiceSisa = {{ $invoice->sisa_pembayaran }}; paymentId = '{{ $p->id }}'; keterangan = '{{ addslashes($p->keterangan) }}'; buktiTransferUrl = '{{ $urlBukti }}'" class="group flex w-full items-center px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 hover:text-amber-800 border-t border-gray-50" role="menuitem">
+                                                <button @click.prevent="addPaymentOpen = true; invoiceId = {{ $invoice->id }}; invoiceSisa = {{ $invoice->sisa_pembayaran }}; paymentId = '{{ $p->id }}'; keterangan = '{{ addslashes($p->keterangan) }}'; buktiTransferUrl = '{{ $urlBukti }}'; fileError = ''" class="group flex w-full items-center px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 hover:text-amber-800 border-t border-gray-50" role="menuitem">
                                                     <svg class="mr-3 h-5 w-5 text-amber-500 group-hover:text-amber-600 animate-pulse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
@@ -364,7 +381,23 @@
                                                     <span class="text-gray-400 font-normal">(Opsional)</span>
                                                 @endif
                                             </label>
-                                            <input type="file" name="bukti_transfer" accept="image/*" @if(auth()->user()->role === 'client') required @endif class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 font-medium bg-white">
+                                            <input type="file" name="bukti_transfer" accept="image/*" 
+                                                   @change="
+                                                       const file = $event.target.files[0];
+                                                       if (file && file.size > 2 * 1024 * 1024) {
+                                                           fileError = 'Ukuran gambar terlalu besar! Maksimal 2MB (2048 KB).';
+                                                           $event.target.value = '';
+                                                       } else {
+                                                           fileError = '';
+                                                       }
+                                                   "
+                                                   @if(auth()->user()->role === 'client') required @endif 
+                                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 font-medium bg-white">
+                                            <template x-if="fileError">
+                                                <p class="text-xs text-red-600 mt-1.5 font-bold flex items-center gap-1 animate-pulse">
+                                                    ⚠️ <span x-text="fileError"></span>
+                                                </p>
+                                            </template>
                                             <p class="text-xs text-blue-500 mt-1 italic">Format file: JPG, JPEG, PNG (Maks. 2MB).</p>
                                         </div>
                                     </template>

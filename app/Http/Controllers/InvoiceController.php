@@ -336,6 +336,12 @@ class InvoiceController extends Controller
             $request->validate([
                 'keterangan'     => 'required|string|max:255',
                 'bukti_transfer' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ], [
+                'bukti_transfer.required' => 'Bukti transfer wajib diunggah.',
+                'bukti_transfer.image'    => 'Berkas yang diunggah harus berupa gambar.',
+                'bukti_transfer.mimes'    => 'Format gambar harus berupa jpeg, png, jpg, atau gif.',
+                'bukti_transfer.max'      => 'Ukuran gambar bukti transfer terlalu besar! Maksimal 2MB (2048 KB).',
+                'keterangan.required'     => 'Keterangan pembayaran wajib diisi.',
             ]);
             
             if ($invoice->sisa_pembayaran <= 0) {
@@ -367,6 +373,14 @@ class InvoiceController extends Controller
                 'keterangan'     => 'required|string|max:255',
                 'jumlah'         => 'required|numeric|min:1|max:' . $invoice->sisa_pembayaran,
                 'bukti_transfer' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ], [
+                'bukti_transfer.image' => 'Berkas yang diunggah harus berupa gambar.',
+                'bukti_transfer.mimes' => 'Format gambar harus berupa jpeg, png, jpg, atau gif.',
+                'bukti_transfer.max'   => 'Ukuran gambar bukti transfer terlalu besar! Maksimal 2MB (2048 KB).',
+                'keterangan.required'  => 'Keterangan pembayaran wajib diisi.',
+                'jumlah.required'      => 'Jumlah pembayaran wajib diisi.',
+                'jumlah.min'           => 'Jumlah pembayaran minimal Rp 1.',
+                'jumlah.max'           => 'Jumlah pembayaran tidak boleh melebihi sisa tagihan (Rp ' . number_format($invoice->sisa_pembayaran, 0, ',', '.') . ').',
             ]);
             
             if ($invoice->sisa_pembayaran <= 0) {
