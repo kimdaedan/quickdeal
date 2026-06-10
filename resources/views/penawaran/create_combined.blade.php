@@ -129,13 +129,36 @@
 
         <div class="md:col-span-3">
             <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Kategori</label>
-            <input type="text" class="area-input w-full rounded-md border-gray-300 bg-white text-sm" readonly placeholder="Otomatis">
+            <select class="category-select w-full rounded-md border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-100" disabled>
+                <option value="">-- Kategori --</option>
+                <option value="Pekerjaan Sipil & Struktur">Pekerjaan Sipil & Struktur</option>
+                <option value="Pekerjaan Arsitektural & Finishing (Desain Interior)">Pekerjaan Arsitektural & Finishing (Desain Interior)</option>
+                <option value="Pekerjaan Elektrikal (Kelistrikan)">Pekerjaan Elektrikal (Kelistrikan)</option>
+                <option value="Pekerjaan Mekanikal & Plumbing (MEP)">Pekerjaan Mekanikal & Plumbing (MEP)</option>
+                <option value="Pekerjaan Desain & Konsultasi">Pekerjaan Desain & Konsultasi</option>
+            </select>
+            <input type="hidden" class="area-input">
         </div>
 
         <div class="md:col-span-1">
-            <label class="block text-xs font-bold text-gray-600 uppercase mb-1 flex items-center justify-between">
-                <span>VOL <span class="satuan-label text-[10px] text-gray-400"></span></span>
-            </label>
+            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Satuan</label>
+            <select class="satuan-select w-full rounded-md border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-100" disabled>
+                <option value="">-- Satuan --</option>
+                <option value="m2">m2</option>
+                <option value="m1">m1</option>
+                <option value="m3">m3</option>
+                <option value="Ls">Ls</option>
+                <option value="Titik">Titik</option>
+                <option value="Unit">Unit</option>
+                <option value="Bh">Bh</option>
+                <option value="Org">Org</option>
+                <option value="Jam">Jam</option>
+            </select>
+            <input type="hidden" class="hidden-satuan">
+        </div>
+
+        <div class="md:col-span-1">
+            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">VOL</label>
             <input type="number" step="0.01" value="1" class="volume-input w-full rounded-md border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500 text-center">
         </div>
 
@@ -144,12 +167,9 @@
             <input type="number" class="harga-input w-full rounded-md border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500">
         </div>
 
-        <div class="md:col-span-2">
+        <div class="md:col-span-1">
             <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Subtotal</label>
             <input type="text" class="total-output w-full bg-gray-200 border-gray-300 rounded-md text-sm font-bold text-gray-700 cursor-not-allowed" readonly>
-            
-            <!-- Hidden inputs untuk form submit -->
-            <input type="hidden" class="hidden-satuan">
         </div>
 
         <div class="absolute top-2 right-2 md:static md:col-span-1 md:flex md:justify-end md:pb-1">
@@ -180,11 +200,12 @@
         }
 
         const tomSelectSettings = {
-            create: false,
+            create: true,
             sortField: { field: "text", direction: "asc" },
             placeholder: "Cari Jasa...",
             plugins: ['dropdown_input'],
             allowEmptyOption: true,
+            createOnBlur: true,
         };
 
         const productContainer = document.getElementById('product-rows-container');
@@ -193,11 +214,12 @@
 
         function setupProductRowEvents(row) {
             const productSelect = row.querySelector('.product-select');
-            const kategoriInput = row.querySelector('.area-input'); // Memakai area-input untuk database
+            const kategoriSelect = row.querySelector('.category-select');
+            const areaInput = row.querySelector('.area-input'); // Memakai area-input untuk database
+            const satuanSelect = row.querySelector('.satuan-select');
+            const hiddenSatuan = row.querySelector('.hidden-satuan');
             const hargaInput = row.querySelector('.harga-input');
             const volumeInput = row.querySelector('.volume-input');
-            const satuanLabel = row.querySelector('.satuan-label');
-            const hiddenSatuan = row.querySelector('.hidden-satuan');
             const removeBtn = row.querySelector('.remove-row-btn');
 
             if (typeof TomSelect !== 'undefined' && !productSelect.tomselect) {
@@ -209,18 +231,60 @@
                 const originalOption = Array.from(this.options).find(opt => opt.value === selectedValue);
                 
                 if(originalOption && selectedValue !== "") {
-                    hargaInput.value = originalOption.getAttribute('data-harga');
-                    kategoriInput.value = originalOption.getAttribute('data-kategori');
-                    const stn = originalOption.getAttribute('data-satuan');
-                    satuanLabel.textContent = "("+stn+")";
-                    hiddenSatuan.value = stn;
+                    const isCustom = originalOption.getAttribute('data-custom') === "true" || !originalOption.hasAttribute('data-harga');
+                    
+                    if (isCustom) {
+                        kategoriSelect.disabled = false;
+                        satuanSelect.disabled = false;
+                        kategoriSelect.classList.remove('bg-gray-100');
+                        satuanSelect.classList.remove('bg-gray-100');
+                        
+                        if (hargaInput.dataset.predefined === "true") {
+                            hargaInput.value = 0;
+                            kategoriSelect.value = "";
+                            areaInput.value = "";
+                            satuanSelect.value = "";
+                            hiddenSatuan.value = "";
+                        }
+                        hargaInput.dataset.predefined = "false";
+                    } else {
+                        hargaInput.value = originalOption.getAttribute('data-harga');
+                        
+                        const kat = originalOption.getAttribute('data-kategori');
+                        kategoriSelect.value = kat;
+                        areaInput.value = kat;
+                        
+                        const stn = originalOption.getAttribute('data-satuan');
+                        satuanSelect.value = stn;
+                        hiddenSatuan.value = stn;
+                        
+                        kategoriSelect.disabled = true;
+                        satuanSelect.disabled = true;
+                        kategoriSelect.classList.add('bg-gray-100');
+                        satuanSelect.classList.add('bg-gray-100');
+                        hargaInput.dataset.predefined = "true";
+                    }
                 } else {
                     hargaInput.value = 0;
-                    kategoriInput.value = "";
-                    satuanLabel.textContent = "";
+                    kategoriSelect.value = "";
+                    areaInput.value = "";
+                    satuanSelect.value = "";
                     hiddenSatuan.value = "";
+                    kategoriSelect.disabled = true;
+                    satuanSelect.disabled = true;
+                    kategoriSelect.classList.add('bg-gray-100');
+                    satuanSelect.classList.add('bg-gray-100');
+                    hargaInput.dataset.predefined = "false";
                 }
                 calculateAllTotals();
+            });
+
+            kategoriSelect.addEventListener('change', function() {
+                areaInput.value = this.value;
+            });
+
+            satuanSelect.addEventListener('change', function() {
+                hiddenSatuan.value = this.value;
             });
 
             hargaInput.addEventListener('input', calculateAllTotals);

@@ -17,17 +17,65 @@
             </div>
         </div>
 
-        {{-- Form Pencarian --}}
-        <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-            <form action="{{ route('histori.index') }}" method="GET" class="w-full md:w-1/2">
-                <div class="flex">
-                    <input type="text" name="search" placeholder="Cari Nama Klien / No. Surat..." class="block w-full rounded-l-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" value="{{ $search ?? '' }}">
-                    <button type="submit" class="bg-gray-800 text-white font-bold py-2 px-4 rounded-r-md hover:bg-gray-700 transition">
-                        Cari
+        {{-- Form Filter & Pencarian --}}
+        <form action="{{ route('histori.index') }}" method="GET" class="mb-6 bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {{-- Search Input --}}
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Cari Kata Kunci</label>
+                    <input type="text"
+                           name="search"
+                           placeholder="Cari Nama Klien / No. Surat..."
+                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                           value="{{ $search ?? '' }}">
+                </div>
+                
+                {{-- Jenis Penawaran Filter --}}
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Jenis Penawaran</label>
+                    <select name="jenis" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                        <option value="">Semua Jenis</option>
+                        <option value="produk" {{ ($jenisFilter ?? '') === 'produk' ? 'selected' : '' }}>Produk</option>
+                        <option value="proyek" {{ ($jenisFilter ?? '') === 'proyek' ? 'selected' : '' }}>Proyek</option>
+                        <option value="publik" {{ ($jenisFilter ?? '') === 'publik' ? 'selected' : '' }}>Publik</option>
+                    </select>
+                </div>
+                
+                {{-- Submit Button --}}
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-gray-700 transition text-sm">
+                        Terapkan Filter
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-gray-150">
+                {{-- Start Date --}}
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tanggal Mulai</label>
+                    <input type="date"
+                           name="start_date"
+                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                           value="{{ $startDate ?? '' }}">
+                </div>
+                
+                {{-- End Date --}}
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tanggal Selesai</label>
+                    <input type="date"
+                           name="end_date"
+                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                           value="{{ $endDate ?? '' }}">
+                </div>
+                
+                {{-- Reset Button --}}
+                <div class="md:col-span-2 flex items-end justify-end">
+                    <a href="{{ route('histori.index') }}" class="text-xs text-gray-500 hover:text-gray-800 underline">
+                        Reset Filter
+                    </a>
+                </div>
+            </div>
+        </form>
 
         @if (session('success'))
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded shadow-sm" role="alert">
@@ -69,10 +117,6 @@
                                         <div class="border-t border-gray-100 my-1"></div>
                                         
                                         <a href="{{ route('invoice.create_from_offer', ['offer' => $offer->id]) }}" class="text-green-700 block px-4 py-2 text-sm hover:bg-gray-100 font-medium">💰 Buat Invoice</a>
-                                        
-                                        @if($offer->jenis_penawaran != 'produk')
-                                            <a href="{{ route('skp.create', ['offer' => $offer->id]) }}" class="text-indigo-700 block px-4 py-2 text-sm hover:bg-gray-100 font-medium">📝 Buat SPK</a>
-                                        @endif
                                         
                                         @if($offer->jenis_penawaran == 'produk')
                                             <a href="{{ route('surat_jalan.create', ['offer' => $offer->id]) }}" class="text-teal-700 block px-4 py-2 text-sm hover:bg-gray-100 font-medium">📦 Buat Surat Jalan</a>
@@ -171,7 +215,7 @@
         </div>
 
         <div class="mt-6 pb-12">
-            {{ $offers->appends(['search' => $search])->links() }}
+            {{ $offers->appends(request()->query())->links() }}
         </div>
     </div>
 </div>

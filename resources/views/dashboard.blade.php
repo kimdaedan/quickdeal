@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
             <div class="bg-white p-6 rounded-2xl shadow-md flex flex-col items-center justify-center text-center hover:shadow-lg transition-shadow">
                 <span class="text-4xl font-black text-gray-800 mb-1">{{ \App\Models\Offer::count() }}</span>
                 <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Penawaran</span>
@@ -86,10 +86,6 @@
             <div class="bg-white p-6 rounded-2xl shadow-md flex flex-col items-center justify-center text-center hover:shadow-lg transition-shadow">
                 <span class="text-4xl font-black text-gray-800 mb-1">{{ \App\Models\Bast::count() }}</span>
                 <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">BAST</span>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-md flex flex-col items-center justify-center text-center hover:shadow-lg transition-shadow">
-                <span class="text-4xl font-black text-gray-800 mb-1">{{ \App\Models\Skp::count() }}</span>
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">SPK</span>
             </div>
         </div>
 

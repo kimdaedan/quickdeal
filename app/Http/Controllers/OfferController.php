@@ -12,6 +12,10 @@ class OfferController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $jenisFilter = $request->input('jenis');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
         $query = Offer::query();
 
         if ($search) {
@@ -21,8 +25,34 @@ class OfferController extends Controller
             });
         }
 
+        // Filter Jenis Penawaran
+        if ($jenisFilter) {
+            if ($jenisFilter === 'produk') {
+                $query->where('jenis_penawaran', 'produk');
+            } elseif ($jenisFilter === 'proyek') {
+                $query->where('jenis_penawaran', '!=', 'produk');
+            } elseif ($jenisFilter === 'publik') {
+                $query->where('is_public', 1);
+            }
+        }
+
+        // Filter Rentang Tanggal
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
         $offers = $query->latest()->paginate(15);
-        return view('histori.index', compact('offers', 'search'));
+
+        return view('histori.index', [
+            'offers'      => $offers,
+            'search'      => $search ?? '',
+            'jenisFilter' => $jenisFilter ?? '',
+            'startDate'   => $startDate ?? '',
+            'endDate'     => $endDate ?? '',
+        ]);
     }
 
     public function create_combined()

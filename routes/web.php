@@ -17,7 +17,7 @@ use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProductOfferController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\BastController;
-use App\Http\Controllers\SkpController;
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RecapController;
 
@@ -179,17 +179,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/recap/export/excel/{id}', [RecapController::class, 'exportExcel'])->name('recap.export.excel');
     Route::get('/recap/export/word/{id}', [RecapController::class, 'exportWord'])->name('recap.export.word');
 
-    // --- SPK (Surat Perintah Kerja) ---
-    Route::prefix('spk')->name('skp.')->group(function () {
-        Route::get('/histori', [SkpController::class, 'index'])->name('index');
-        Route::get('/show/{skp}', [SkpController::class, 'show'])->name('show');
-        Route::get('/edit/{skp}', [SkpController::class, 'edit'])->name('edit');
-        Route::put('/update/{skp}', [SkpController::class, 'update'])->name('update');
-        Route::delete('/{skp}', [SkpController::class, 'destroy'])->name('destroy');
-        Route::get('/create/{offer}', [SkpController::class, 'create'])->name('create');
-        Route::post('/store/{offer}', [SkpController::class, 'store'])->name('store');
-        Route::get('/{id}/print', [SkpController::class, 'print'])->name('print');
-    });
+// SPK routes removed
 });
 
 
