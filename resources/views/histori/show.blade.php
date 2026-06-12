@@ -29,7 +29,10 @@
                 <div class="space-y-1">
                     <div class="flex items-center gap-2">
                         <span class="font-bold text-gray-800 text-sm">{{ $neg->nama_klien }}</span>
-                        <span class="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-150">Kontak: {{ $neg->kontak }}</span>
+                        <span class="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-150">WA: {{ $neg->kontak }}</span>
+                        @if($neg->email)
+                        <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-150">Email: {{ $neg->email }}</span>
+                        @endif
                     </div>
                     <p class="text-xs text-gray-500">Diajukan pada: {{ $neg->created_at->format('d M Y H:i') }}</p>
                     @if($neg->catatan)
@@ -41,13 +44,27 @@
                         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Harga Pengajuan</p>
                         <p class="text-base font-extrabold text-indigo-600">Rp {{ number_format($neg->harga_pengajuan, 0, ',', '.') }}</p>
                     </div>
-                    <form action="{{ route('negotiation.destroy', $neg->id) }}" method="POST" onsubmit="return confirm('Hapus negosiasi ini?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-lg transition" title="Hapus Pengajuan">
-                            🗑️
-                        </button>
-                    </form>
+                    <div class="flex items-center gap-2">
+                        @if($neg->status !== 'approved')
+                        <form action="{{ route('negotiation.approve', $neg->id) }}" method="POST" onsubmit="return confirm('Setujui negosiasi ini? Penawaran akan diupdate ke harga pengajuan dan Invoice otomatis akan dibuat.');">
+                            @csrf
+                            <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold py-1.5 px-3 rounded-lg shadow-sm transition flex items-center gap-1">
+                                <span>✓</span> Setujui
+                            </button>
+                        </form>
+                        @else
+                        <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-emerald-200">
+                            Disetujui
+                        </span>
+                        @endif
+                        <form action="{{ route('negotiation.destroy', $neg->id) }}" method="POST" onsubmit="return confirm('Hapus negosiasi ini?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-lg transition" title="Hapus Pengajuan">
+                                🗑️
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
             @endforeach

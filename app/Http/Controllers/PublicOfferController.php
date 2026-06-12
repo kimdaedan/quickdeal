@@ -41,16 +41,33 @@ class PublicOfferController extends Controller
         $request->validate([
             'nama_klien' => 'required|string|max:255',
             'kontak' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
             'harga_pengajuan' => 'required|numeric|min:0',
             'catatan' => 'nullable|string',
         ]);
 
-        $offer->negotiations()->create([
+        $negotiation = $offer->negotiations()->create([
             'nama_klien' => $request->nama_klien,
             'kontak' => $request->kontak,
+            'email' => $request->email,
             'harga_pengajuan' => $request->harga_pengajuan,
             'catatan' => $request->catatan,
         ]);
+
+        // Kirim email notifikasi ke admin
+        try {
+            $admins = \App\Models\User::where('role', 'admin')->get();
+            $adminEmails = $admins->pluck('email')->filter()->toArray();
+
+            if (empty($adminEmails)) {
+                $adminEmails = ['admin@tasniem.com'];
+            }
+
+            \Illuminate\Support\Facades\Mail::to($adminEmails)->send(new \App\Mail\NewNegotiationMail($negotiation));
+        } catch (\Exception $e) {
+            // Log error tapi jangan menggagalkan proses redirect sukses klien
+            \Illuminate\Support\Facades\Log::error('Gagal mengirim email negosiasi baru ke admin: ' . $e->getMessage());
+        }
 
         return redirect()->back()->with('success_negotiation', 'Negosiasi Anda berhasil diajukan! Kami akan segera meninjau penawaran Anda.');
     }

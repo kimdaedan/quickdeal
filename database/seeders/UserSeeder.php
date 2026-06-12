@@ -19,6 +19,7 @@ class UserSeeder extends Seeder
                 'name' => 'Admin Tasniem',
                 'username' => 'managerkda',           // Username untuk login
                 'email' => 'admin@tasniem.com',  // Email (tetap diisi untuk kebutuhan sistem/notifikasi)
+                'email_verified_at' => now(),
                 'password' => Hash::make('123456'), // Password
             ]);
         }
@@ -29,6 +30,7 @@ class UserSeeder extends Seeder
                 'name' => 'Staff Gudang',
                 'username' => 'staff',
                 'email' => 'staff@tasniem.com',
+                'email_verified_at' => now(),
                 'password' => Hash::make('staff123'),
             ]);
         }

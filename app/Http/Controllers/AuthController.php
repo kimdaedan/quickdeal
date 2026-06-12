@@ -50,6 +50,8 @@ class AuthController extends Controller
             'role' => 'client',
         ]);
 
+        event(new \Illuminate\Auth\Events\Registered($user));
+
         Auth::login($user);
 
         return redirect()->route('client.dashboard');
@@ -71,7 +73,7 @@ class AuthController extends Controller
             // Jika berhasil:
             $request->session()->regenerate();
 
-            // Redirect based on role
+            // Redirect berdasarkan role
             if (Auth::user()->role === 'client') {
                 return redirect()->route('client.dashboard');
             }
@@ -96,5 +98,109 @@ class AuthController extends Controller
         $request->session()->regenerateToken(); // Regenerasi CSRF token
 
         return redirect('/login'); // Kembali ke halaman login
+    }
+
+    /**
+     * Menampilkan halaman pemberitahuan verifikasi email.
+     */
+    public function showVerificationNotice(Request $request)
+    {
+        return $request->user()->hasVerifiedEmail()
+            ? redirect()->route('dashboard')
+            : view('auth.verify-email');
+    }
+
+    /**
+     * Memproses verifikasi email setelah link diklik.
+     */
+    public function verifyEmail(\Illuminate\Foundation\Auth\EmailVerificationRequest $request)
+    {
+        $request->fulfill();
+
+        if (Auth::user()->role === 'client') {
+            return redirect()->route('client.dashboard')->with('status', 'email-verified');
+        }
+
+        return redirect()->route('dashboard')->with('status', 'email-verified');
+    }
+
+    /**
+     * Mengirim ulang email verifikasi.
+     */
+    public function resendVerificationEmail(Request $request)
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->intended('/dashboard');
+        }
+
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('status', 'verification-link-sent');
+    }
+
+    /**
+     * Menampilkan form lupa password.
+     */
+    public function showForgotPasswordForm()
+    {
+        return view('auth.forgot-password');
+    }
+
+    /**
+     * Mengirimkan link reset password ke email.
+     */
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'string', 'email']
+        ]);
+
+        $status = \Illuminate\Support\Facades\Password::broker()->sendResetLink(
+            $request->only('email')
+        );
+
+        return $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT
+            ? back()->with('status', __($status))
+            : back()->withErrors(['email' => __($status)]);
+    }
+
+    /**
+     * Menampilkan form untuk mengisi password baru.
+     */
+    public function showResetPasswordForm(Request $request, $token)
+    {
+        return view('auth.reset-password', [
+            'token' => $token,
+            'email' => $request->email
+        ]);
+    }
+
+    /**
+     * Memproses reset password baru.
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $status = \Illuminate\Support\Facades\Password::broker()->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => \Illuminate\Support\Facades\Hash::make($password)
+                ])->setRememberToken(\Illuminate\Support\Str::random(60));
+
+                $user->save();
+
+                event(new \Illuminate\Auth\Events\PasswordReset($user));
+            }
+        );
+
+        return $status === \Illuminate\Support\Facades\Password::PASSWORD_RESET
+            ? redirect()->route('login')->with('status', __($status))
+            : back()->withErrors(['email' => __($status)]);
     }
 }

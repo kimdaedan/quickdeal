@@ -256,7 +256,62 @@ class OfferController extends Controller
     public function destroyNegotiation($id)
     {
         $negotiation = \App\Models\Negotiation::findOrFail($id);
+
+        // Kirim email penolakan sebelum menghapus
+        try {
+            if ($negotiation->email) {
+                \Illuminate\Support\Facades\Mail::to($negotiation->email)->send(new \App\Mail\NegotiationRejectedMail($negotiation));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal mengirim email penolakan negosiasi ke klien: ' . $e->getMessage());
+        }
+
         $negotiation->delete();
-        return redirect()->back()->with('success', 'Pengajuan negosiasi berhasil dihapus!');
+        return redirect()->back()->with('success', 'Pengajuan negosiasi berhasil ditolak dan email pemberitahuan telah dikirim ke klien.');
+    }
+
+    public function approveNegotiation($id)
+    {
+        if (auth()->user()->role === 'client') {
+            abort(403, 'Anda tidak memiliki akses ke tindakan ini.');
+        }
+
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
+            $negotiation = \App\Models\Negotiation::findOrFail($id);
+            $offer = $negotiation->offer;
+
+            // 1. Update status negosiasi
+            $negotiation->update(['status' => 'approved']);
+
+            // 2. Update total_keseluruhan di penawaran asli ke harga yang disepakati
+            $offer->update([
+                'total_keseluruhan' => $negotiation->harga_pengajuan
+            ]);
+
+            // 3. Otomatis buat Invoice
+            $invoice = \App\Models\Invoice::create([
+                'offer_id' => $offer->id,
+                'no_invoice' => 'INV-' . date('Ymd') . '-' . $offer->id,
+                'nama_klien' => $offer->nama_klien,
+                'total_penawaran' => $negotiation->harga_pengajuan,
+                'total_tambahan' => 0,
+                'diskon' => 0,
+                'grand_total' => $negotiation->harga_pengajuan,
+                'total_dp' => 0,
+                'sisa_pembayaran' => $negotiation->harga_pengajuan,
+                'status' => 'due',
+            ]);
+
+            // 4. Kirim email persetujuan ke klien
+            try {
+                if ($negotiation->email) {
+                    \Illuminate\Support\Facades\Mail::to($negotiation->email)->send(new \App\Mail\NegotiationApprovedMail($negotiation, $invoice));
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Gagal mengirim email persetujuan negosiasi ke klien: ' . $e->getMessage());
+            }
+
+            return redirect()->back()->with('success', 'Negosiasi berhasil disetujui! Harga penawaran telah diperbarui, invoice otomatis dibuat, dan email konfirmasi dikirim ke klien.');
+        });
     }
 }

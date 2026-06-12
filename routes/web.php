@@ -56,13 +56,28 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 
+// Route Lupa Password (Guest)
+Route::middleware('guest')->group(function () {
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+});
+
+// Route Verifikasi Email (Authenticated)
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', [AuthController::class, 'showVerificationNotice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed'])->name('verification.verify');
+    Route::post('/email/verification-notification', [AuthController::class, 'resendVerificationEmail'])->middleware(['throttle:6,1'])->name('verification.send');
+});
+
 
 /*
 |--------------------------------------------------------------------------
-| 3. PROTECTED ROUTES (Hanya Bisa Diakses Setelah Login)
+| 3. PROTECTED ROUTES (Hanya Bisa Diakses Setelah Login & Terverifikasi)
 |--------------------------------------------------------------------------
-*/
-Route::middleware(['auth'])->group(function () {
+|*/
+Route::middleware(['auth', 'verified'])->group(function () {
 
     // --- DASHBOARD ---
     Route::get('/dashboard', function () {
@@ -164,6 +179,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::delete('/negotiations/{id}', [OfferController::class, 'destroyNegotiation'])->name('negotiation.destroy');
+    Route::post('/negotiations/{id}/approve', [OfferController::class, 'approveNegotiation'])->name('negotiation.approve');
 
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');

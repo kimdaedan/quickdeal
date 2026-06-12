@@ -21,6 +21,13 @@
             <p class="text-gray-500 text-sm mt-2">Silakan masuk menggunakan username Anda</p>
         </div>
 
+        @if (session('status'))
+            <div class="mb-5 bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded text-sm" role="alert">
+                <p class="font-bold mb-1">Berhasil</p>
+                <p>{{ session('status') }}</p>
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="mb-5 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded text-sm" role="alert">
                 <p class="font-bold mb-1">Gagal Masuk</p>
@@ -41,7 +48,10 @@
             </div>
 
             <div class="mb-6 relative">
-                <label for="password" class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+                <div class="flex justify-between items-center mb-1">
+                    <label for="password" class="text-sm font-semibold text-gray-700">Password</label>
+                    <a href="{{ route('password.request') }}" class="text-xs text-blue-600 hover:text-blue-800 transition font-medium">Lupa Password?</a>
+                </div>
                 <div class="relative">
                     <input type="password" name="password" id="password"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 pr-10"

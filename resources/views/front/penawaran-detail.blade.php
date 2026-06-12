@@ -353,8 +353,13 @@
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-extrabold text-slate-600 uppercase tracking-wider mb-1">No. HP / WA / Email Kontak <span class="text-red-500">*</span></label>
-                        <input type="text" name="kontak" required placeholder="Contoh: 0899-8877-6655 (WA)" class="w-full rounded-xl border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm py-2.5 px-3">
+                        <label class="block text-[10px] font-extrabold text-slate-600 uppercase tracking-wider mb-1">No. HP / WhatsApp (WA) <span class="text-red-500">*</span></label>
+                        <input type="text" name="kontak" required placeholder="Contoh: 0899-8877-6655" class="w-full rounded-xl border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm py-2.5 px-3">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-slate-600 uppercase tracking-wider mb-1">Email Kontak <span class="text-red-500">*</span></label>
+                        <input type="email" name="email" required placeholder="Contoh: rina@gmail.com" class="w-full rounded-xl border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm py-2.5 px-3">
                     </div>
 
                     <div>

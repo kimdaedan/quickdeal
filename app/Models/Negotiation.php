@@ -13,6 +13,7 @@ class Negotiation extends Model
         'offer_id',
         'nama_klien',
         'kontak',
+        'email',
         'harga_pengajuan',
         'catatan',
         'status',
