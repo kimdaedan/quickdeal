@@ -40,6 +40,7 @@ Route::get('/', function () {
 
 Route::get('/penawaran-public', [\App\Http\Controllers\PublicOfferController::class, 'index'])->name('front.penawaran.index');
 Route::get('/penawaran-public/{id}', [\App\Http\Controllers\PublicOfferController::class, 'show'])->name('front.penawaran.show');
+Route::post('/penawaran-public/{id}/negosiasi', [\App\Http\Controllers\PublicOfferController::class, 'storeNegotiation'])->name('front.penawaran.negotiate');
 
 
 
@@ -76,7 +77,42 @@ Route::middleware(['auth'])->group(function () {
         if (auth()->user()->role !== 'client') {
             return redirect()->route('dashboard');
         }
-        return view('client.dashboard');
+
+        $userName = auth()->user()->name;
+        $userId = auth()->id();
+
+        // Fetch unpaid invoices (status != 'paid')
+        $unpaidInvoices = \App\Models\Invoice::where('nama_klien', $userName)
+            ->where('status', '!=', 'paid')
+            ->get();
+
+        $totalUnpaidAmount = $unpaidInvoices->sum('sisa_pembayaran');
+        $unpaidCount = $unpaidInvoices->count();
+
+        // Fetch 5 most recent invoices
+        $recentInvoices = \App\Models\Invoice::where('nama_klien', $userName)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Fetch 5 most recent Purchase Orders
+        $recentPOs = \App\Models\PurchaseOrder::with('offer')
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $totalPOsCount = \App\Models\PurchaseOrder::where('user_id', $userId)->count();
+        $pendingPOsCount = \App\Models\PurchaseOrder::where('user_id', $userId)->where('status', 'pending')->count();
+
+        return view('client.dashboard', compact(
+            'totalUnpaidAmount',
+            'unpaidCount',
+            'recentInvoices',
+            'recentPOs',
+            'totalPOsCount',
+            'pendingPOsCount'
+        ));
     })->name('client.dashboard');
 
     Route::middleware('auth')->group(function () {
@@ -126,6 +162,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{offer}/print', [OfferController::class, 'print'])->name('print');
         Route::post('/{offer}/toggle-publish', [OfferController::class, 'togglePublish'])->name('toggle_publish');
     });
+
+    Route::delete('/negotiations/{id}', [OfferController::class, 'destroyNegotiation'])->name('negotiation.destroy');
+
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
     // --- INVOICE ---
     Route::prefix('invoice')->name('invoice.')->group(function () {

@@ -24,6 +24,44 @@
         </div>
     </div>
 
+    {{-- DAFTAR NEGOSIASI --}}
+    @if($offer->negotiations->isNotEmpty())
+    <div class="max-w-4xl mx-auto mb-6 bg-white border border-indigo-100 rounded-xl shadow-md p-6 print:hidden">
+        <h3 class="text-base font-bold text-gray-850 mb-4 flex items-center gap-2">
+            <span>💬</span> Pengajuan Negosiasi Klien ({{ $offer->negotiations->count() }})
+        </h3>
+        <div class="space-y-4 divide-y divide-gray-100">
+            @foreach($offer->negotiations as $neg)
+            <div class="pt-4 first:pt-0 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-gray-800 text-sm">{{ $neg->nama_klien }}</span>
+                        <span class="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-150">Kontak: {{ $neg->kontak }}</span>
+                    </div>
+                    <p class="text-xs text-gray-500">Diajukan pada: {{ $neg->created_at->format('d M Y H:i') }}</p>
+                    @if($neg->catatan)
+                    <p class="text-xs text-gray-600 bg-gray-50 p-2.5 rounded-lg border border-gray-100 italic mt-1.5">"{{ $neg->catatan }}"</p>
+                    @endif
+                </div>
+                <div class="flex items-center gap-4 text-right">
+                    <div>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Harga Pengajuan</p>
+                        <p class="text-base font-extrabold text-indigo-600">Rp {{ number_format($neg->harga_pengajuan, 0, ',', '.') }}</p>
+                    </div>
+                    <form action="{{ route('negotiation.destroy', $neg->id) }}" method="POST" onsubmit="return confirm('Hapus negosiasi ini?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-lg transition" title="Hapus Pengajuan">
+                            🗑️
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-lg rounded-lg print:shadow-none print:p-0" id="surat-penawaran">
 
         <style>

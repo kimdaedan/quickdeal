@@ -44,4 +44,9 @@ public function purchaseOrders()
 {
     return $this->hasMany(PurchaseOrder::class);
 }
+
+public function negotiations()
+{
+    return $this->hasMany(Negotiation::class);
+}
 }

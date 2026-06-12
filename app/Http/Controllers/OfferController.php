@@ -44,7 +44,7 @@ class OfferController extends Controller
             $query->whereDate('created_at', '<=', $endDate);
         }
 
-        $offers = $query->latest()->paginate(15);
+        $offers = $query->withCount('negotiations')->latest()->paginate(15);
 
         return view('histori.index', [
             'offers'      => $offers,
@@ -211,7 +211,7 @@ class OfferController extends Controller
     // ... method lainnya (show, edit, destroy, print) tetap sama ...
     public function show($id)
     {
-        $offer = Offer::with(['items', 'jasaItems'])->findOrFail($id);
+        $offer = Offer::with(['items', 'jasaItems', 'negotiations'])->findOrFail($id);
         $view = ($offer->jenis_penawaran == 'produk') ? 'histori.show_product' : 'histori.show';
         return view($view, compact('offer'));
     }
@@ -251,5 +251,12 @@ class OfferController extends Controller
         
         $status = $offer->is_public ? 'Dipublish' : 'Batal Publish';
         return redirect()->back()->with('success', "Penawaran berhasil {$status}!");
+    }
+
+    public function destroyNegotiation($id)
+    {
+        $negotiation = \App\Models\Negotiation::findOrFail($id);
+        $negotiation->delete();
+        return redirect()->back()->with('success', 'Pengajuan negosiasi berhasil dihapus!');
     }
 }

@@ -178,7 +178,14 @@
 
                         {{-- NAMA KLIEN --}}
                         <td class="px-6 py-4 font-medium text-gray-900 whitespace-normal min-w-[200px] max-w-[300px] leading-snug">
-                            {{ $offer->nama_klien }}
+                            <div class="flex flex-col gap-1 items-start">
+                                <span>{{ $offer->nama_klien }}</span>
+                                @if($offer->negotiations_count > 0)
+                                    <span class="inline-flex items-center gap-1 bg-red-100 text-red-850 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-red-300 animate-pulse">
+                                        💬 {{ $offer->negotiations_count }} Negosiasi Baru
+                                    </span>
+                                @endif
+                            </div>
                         </td>
 
                         {{-- DETAIL --}}
