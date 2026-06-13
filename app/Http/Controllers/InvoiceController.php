@@ -358,12 +358,24 @@ class InvoiceController extends Controller
             }
             
             // Simpan data pembayaran sebagai pending dengan jumlah = 0
-            $invoice->payments()->create([
+            $payment = $invoice->payments()->create([
                 'keterangan'        => $request->keterangan,
                 'jumlah'            => 0,
                 'bukti_transfer'    => $buktiTransferPath,
                 'status_verifikasi' => 'pending',
             ]);
+
+            // Kirim email notifikasi ke admin
+            try {
+                $admins = \App\Models\User::where('role', 'admin')->get();
+                $adminEmails = $admins->pluck('email')->filter()->toArray();
+                if (empty($adminEmails)) {
+                    $adminEmails = ['admin@tasniem.com'];
+                }
+                \Illuminate\Support\Facades\Mail::to($adminEmails)->send(new \App\Mail\PaymentProofUploadedMail($invoice, $payment));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Gagal mengirim email bukti transfer baru ke admin: ' . $e->getMessage());
+            }
             
             return redirect()->back()->with('success', 'Bukti transfer berhasil diunggah! Menunggu verifikasi admin.');
             
@@ -472,6 +484,31 @@ class InvoiceController extends Controller
             'status'          => $status
         ]);
 
+        // Kirim email persetujuan ke klien
+        try {
+            $clientEmail = null;
+            $client = \App\Models\User::where('role', 'client')->where('name', $invoice->nama_klien)->first();
+            if ($client && $client->email) {
+                $clientEmail = $client->email;
+            } else {
+                $po = \App\Models\PurchaseOrder::where('offer_id', $invoice->offer_id)->latest()->first();
+                if ($po && $po->email) {
+                    $clientEmail = $po->email;
+                } else {
+                    $negotiation = $invoice->offer?->negotiations()->latest()->first();
+                    if ($negotiation && $negotiation->email) {
+                        $clientEmail = $negotiation->email;
+                    }
+                }
+            }
+
+            if ($clientEmail) {
+                \Illuminate\Support\Facades\Mail::to($clientEmail)->send(new \App\Mail\PaymentApprovedMail($invoice, $payment));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal mengirim email persetujuan pembayaran ke klien: ' . $e->getMessage());
+        }
+
         return redirect()->back()->with('success', 'Pembayaran berhasil diverifikasi dan disetujui!');
     }
 
@@ -485,9 +522,35 @@ class InvoiceController extends Controller
         }
 
         $payment = \App\Models\InvoicePayment::findOrFail($id);
+        $invoice = $payment->invoice;
 
         if ($payment->status_verifikasi !== 'pending') {
             return redirect()->back()->with('error', 'Hanya pembayaran pending yang dapat ditolak.');
+        }
+
+        // Kirim email penolakan ke klien sebelum dihapus
+        try {
+            $clientEmail = null;
+            $client = \App\Models\User::where('role', 'client')->where('name', $invoice->nama_klien)->first();
+            if ($client && $client->email) {
+                $clientEmail = $client->email;
+            } else {
+                $po = \App\Models\PurchaseOrder::where('offer_id', $invoice->offer_id)->latest()->first();
+                if ($po && $po->email) {
+                    $clientEmail = $po->email;
+                } else {
+                    $negotiation = $invoice->offer?->negotiations()->latest()->first();
+                    if ($negotiation && $negotiation->email) {
+                        $clientEmail = $negotiation->email;
+                    }
+                }
+            }
+
+            if ($clientEmail) {
+                \Illuminate\Support\Facades\Mail::to($clientEmail)->send(new \App\Mail\PaymentRejectedMail($invoice, $payment));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal mengirim email penolakan pembayaran ke klien: ' . $e->getMessage());
         }
 
         // Hapus file bukti transfer jika ada
