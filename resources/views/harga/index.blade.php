@@ -25,7 +25,7 @@
                             Kategori
                         </th>
                         <th scope="col" class="px-6 py-3 text-center">
-                            Satuansssssss
+                            Satuan
                         </th>
                         <th scope="col" class="px-6 py-3 text-right">
                             Harga
