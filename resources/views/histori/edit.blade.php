@@ -9,7 +9,7 @@
             <p class="text-sm text-gray-500">Perbarui data penawaran di bawah ini.</p>
         </div>
         <a href="{{ route('histori.index') }}" class="text-sm text-gray-600 hover:text-blue-600 transition">
-            &larr; Kembali ke Histori
+            &larr; Kembali ke Historis
         </a>
     </div>
 
