@@ -34,7 +34,7 @@
             <fieldset class="border-t pt-6 mt-8">
                 <legend class="text-lg font-semibold text-gray-700 px-2">2. Daftar Produk</legend>
 
-                {{-- Datalist untukk Autocomplete --}}
+                {{-- Datalist untuk Autocomplete --}}
                 <datalist id="list-produk-db">
                     @foreach ($products as $product)
                         <option value="{{ $product->nama_produk }}" data-harga="{{ $product->harga }}" data-kemasan="{{ $product->kemasan ?? '-' }}">
