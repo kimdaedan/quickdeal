@@ -108,6 +108,14 @@
                 <p class="text-sm text-gray-600">Sudah punya akun? 
                     <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 font-semibold transition">Masuk di sini</a>
                 </p>
+                <div class="mt-4 text-xs text-slate-500">
+                    Butuh bantuan pendaftaran atau kendala teknis? <br>
+                    <a href="https://wa.me/6281393044942?text=Halo%20Admin%20Quick.Deal,%20saya%20mengalami%20kendala%20saat%20mendaftar%20akun..." 
+                       target="_blank" 
+                       class="text-emerald-600 hover:text-emerald-700 font-bold transition inline-flex items-center gap-1 mt-1">
+                        🟢 Chat Admin (WhatsApp)
+                    </a>
+                </div>
             </div>
         </form>
 

@@ -72,7 +72,7 @@
     </div>
     @endif
 
-    <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-lg rounded-lg" id="surat-penawaran">
+    <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-lg rounded-lg keep-light" id="surat-penawaran">
 
         {{-- HEADER KOP SURAT --}}
         <header class="w-full mb-6">

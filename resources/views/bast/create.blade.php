@@ -82,22 +82,22 @@
                         <span>1.</span>
                         <span>Nama</span>
                         <span>:</span>
-                        <input type="text" name="pihak_pertama_nama" value="{{ old('pihak_pertama_nama', $pihakPertama['nama']) }}" class="w-full border rounded px-2 py-1 bg-gray-50 focus:bg-white focus:border-blue-500 transition" required>
+                        <input type="text" value="Didan Naufal Sirodjuddin" class="w-full border rounded px-2 py-1 bg-gray-100 text-gray-600 cursor-not-allowed" readonly>
 
                         <span></span>
                         <span>Jabatan</span>
                         <span>:</span>
-                        <input type="text" name="pihak_pertama_jabatan" value="{{ old('pihak_pertama_jabatan', $pihakPertama['jabatan']) }}" class="w-full border rounded px-2 py-1 bg-gray-50 focus:bg-white focus:border-blue-500 transition" required>
+                        <input type="text" value="Direktur" class="w-full border rounded px-2 py-1 bg-gray-100 text-gray-600 cursor-not-allowed" readonly>
 
                         <span></span>
                         <span>Perusahaan/Vendor</span>
                         <span>:</span>
-                        <input type="text" value="PT. Tasniem Gerai Inspirasi" class="w-full border rounded px-2 py-1 bg-gray-100 text-gray-600 cursor-not-allowed" readonly>
+                        <input type="text" value="CV. Daedan Enterprise" class="w-full border rounded px-2 py-1 bg-gray-100 text-gray-600 cursor-not-allowed" readonly>
 
                         <span></span>
                         <span>Alamat</span>
                         <span>:</span>
-                        <textarea rows="2" class="w-full border rounded px-2 py-1 bg-gray-100 text-gray-600 cursor-not-allowed" readonly>Ruko KDA Junction Blok C No 8-9 Batam Center - Batam</textarea>
+                        <textarea rows="2" class="w-full border rounded px-2 py-1 bg-gray-100 text-gray-600 cursor-not-allowed" readonly>Taman Jaya Asri C1 no 17 Batu Aji - Batam</textarea>
                     </div>
                     <p class="mt-2 ml-8 font-bold">Selanjutnya disebut sebagai PIHAK PERTAMA</p>
                 </div>
@@ -164,8 +164,8 @@
             <div class="mt-12 flex justify-between text-center px-8">
                 <div>
                     <p class="mb-20">Pihak Pertama</p>
-                    <p class="font-bold underline" id="preview-nama-pertama">Samsu Rizal</p>
-                    <p>PT. Tasniem Gerai Inspirasi</p>
+                    <p class="font-bold underline" id="preview-nama-pertama">Didan Naufal Sirodjuddin</p>
+                    <p>CV. Daedan Enterprise</p>
                 </div>
                 <div>
                     <p class="mb-20">Pihak Kedua</p>

@@ -24,6 +24,11 @@
             </a>
             <div class="flex items-center gap-4">
                 <a href="{{ route('front.landing') }}" class="text-slate-600 hover:text-indigo-600 font-medium transition text-sm">Beranda</a>
+                <a href="https://wa.me/6281393044942?text=Halo%20Admin%20Quick.Deal,%20saya%20ingin%20bertanya%20mengenai%20katalog%20penawaran..." 
+                   target="_blank" 
+                   class="text-emerald-600 hover:text-emerald-700 font-bold transition text-sm flex items-center gap-1">
+                    WhatsApp Admin
+                </a>
                 <a href="{{ route('dashboard') }}" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-800 transition shadow-sm">Dashboard</a>
             </div>
         </div>
@@ -146,8 +151,12 @@
 
     {{-- Footer --}}
     <footer class="mt-auto py-8 text-center text-slate-400 text-xs border-t border-slate-100 bg-white">
-        &copy; 2026 Quick.Deal. Dibuat untuk Efisiensi & Transparansi Kerja.
+        <div>&copy; 2026 Quick.Deal. Dibuat untuk Efisiensi & Transparansi Kerja.</div>
+        <div class="mt-2 font-medium text-slate-500">Hubungi Admin WA: <a href="https://wa.me/6281393044942" class="text-emerald-650 hover:underline">0813-9304-4942</a></div>
     </footer>
+
+    {{-- Include Floating WhatsApp Widget --}}
+    @include('partials.whatsapp-btn')
 
 </body>
 </html>

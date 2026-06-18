@@ -286,11 +286,13 @@
                     </div>
                     <h4 class="text-sm font-bold text-gray-900 mb-2">Pusat Hubungi Bantuan</h4>
                     <p class="text-xs text-gray-500 leading-relaxed mb-4">
-                        Butuh klarifikasi terkait invoice, memiliki kendala pengerjaan proyek, atau ingin berkonsultasi mengenai pesanan berjalan? Hubungi kami langsung.
+                        Butuh klarifikasi terkait invoice, memiliki kendala pengerjaan proyek, atau ingin berkonsultasi mengenai pesanan berjalan? Hubungi WhatsApp admin kami langsung untuk respon lebih cepat.
                     </p>
                 </div>
-                <a href="mailto:support@quickdeal.com" class="text-xs font-bold text-emerald-600 hover:text-emerald-800 inline-flex items-center gap-1 mt-2">
-                    Kirim Email ke Support &rarr;
+                <a href="https://wa.me/6281393044942?text=Halo%20Admin%20Quick.Deal,%20saya%20klien%20dengan%20nama%20{{ urlencode(Auth::user()->name) }}%20ingin%2520bertanya%2520mengenai..." 
+                   target="_blank"
+                   class="text-xs font-bold text-emerald-600 hover:text-emerald-800 inline-flex items-center gap-1 mt-2">
+                    Hubungi Admin via WhatsApp &rarr;
                 </a>
             </div>
 

@@ -19,7 +19,14 @@
            <a href="{{ route('front.penawaran.index') }}" class="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition font-bold text-sm">
                 &larr; Kembali ke Daftar
             </a>
-            <span class="text-base font-extrabold tracking-tight">Quick<span class="text-indigo-600">.Deal</span></span>
+            <div class="flex items-center gap-4">
+                <a href="https://wa.me/6281393044942?text=Halo%20Admin%20Quick.Deal,%20saya%20ingin%2520bertanya%2520mengenai%2520surat%2520penawaran%2520dengan%2520nomor%252000{{ $offer->id }}..." 
+                   target="_blank" 
+                   class="text-emerald-600 hover:text-emerald-700 font-bold transition text-xs flex items-center gap-1">
+                    Hubungi Admin (WA)
+                </a>
+                <span class="text-base font-extrabold tracking-tight">Quick<span class="text-indigo-600">.Deal</span></span>
+            </div>
         </div>
     </nav>
 
@@ -36,7 +43,7 @@
         </div>
         @endif
 
-        <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-xl rounded-3xl border border-slate-100" id="surat-penawaran">
+        <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-xl rounded-3xl border border-slate-100 keep-light" id="surat-penawaran">
             
             <div class="mb-6 bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-xl text-indigo-900 text-xs">
                 <strong>💡 Informasi Publik:</strong> Identitas klien telah disamarkan demi menjaga privasi & kerahasiaan data penawaran.
@@ -322,6 +329,11 @@
             <button onclick="openNegotiationModal()" class="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 font-bold py-3.5 px-8 rounded-full border border-slate-250 transition duration-200 shadow-sm flex items-center justify-center gap-2 text-sm">
                 💬 Ajukan Negosiasi Harga
             </button>
+            <a href="https://wa.me/6281393044942?text=Halo%20Admin%20Quick.Deal,%20saya%20ingin%20bertanya%20mengenai%20surat%20penawaran%20nomor%2000{{ $offer->id }}..." 
+               target="_blank"
+               class="w-full sm:w-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold py-3.5 px-8 rounded-full border border-emerald-200 transition duration-200 shadow-sm flex items-center justify-center gap-2 text-sm">
+                🟢 Chat Admin WA
+            </a>
             <a href="{{ route('po.create', $offer->id) }}" class="w-full sm:w-auto text-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-8 rounded-full shadow-lg transform transition duration-200 hover:-translate-y-0.5 text-sm flex items-center justify-center gap-2">
                 📄 Buat Purchase Order (PO)
             </a>
@@ -397,5 +409,8 @@
             document.body.style.overflow = '';
         }
     </script>
+    {{-- Include Floating WhatsApp Widget --}}
+    @include('partials.whatsapp-btn')
+
 </body>
 </html>

@@ -30,7 +30,7 @@ $tahun = $date->format('Y');
 
     <!-- Area Dokumen Cetak -->
     <!-- ID 'dokumen-bast' ini yang akan kita isolasi saat print -->
-    <div class="max-w-5xl mx-auto bg-white p-8 md:p-16 shadow-lg rounded-lg" id="dokumen-bast">
+    <div class="max-w-5xl mx-auto bg-white p-8 md:p-16 shadow-lg rounded-lg keep-light" id="dokumen-bast">
 
         {{-- HEADER KOP SURAT --}}
         <header class="w-full mb-6">

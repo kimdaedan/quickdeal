@@ -12,7 +12,7 @@
         </a>
     </div>
 
-    <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-lg rounded-lg border" id="invoice-print-area">
+    <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-lg rounded-lg border keep-light" id="invoice-print-area">
 
         {{-- HEADER KOP SURAT --}}
         <header class="w-full mb-6">

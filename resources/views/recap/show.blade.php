@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden print:shadow-none print:border-none">
+        <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden print:shadow-none print:border-none keep-light">
             {{-- Header Konten --}}
             <div class="p-10 border-b border-slate-50 bg-slate-50/30">
                 <div class="flex flex-col md:flex-row justify-between items-start gap-6">
