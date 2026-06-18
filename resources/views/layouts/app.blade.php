@@ -70,7 +70,7 @@
     </style>
 </head>
 
-<body class="bg-gray-50 font-sans leading-normal tracking-normal">
+<body class="bg-gray-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans leading-normal tracking-normal transition-colors duration-200">
 
     <div class="flex h-screen overflow-hidden">
         <aside class="w-68 sidebar-gradient text-white hidden md:flex md:flex-col flex-shrink-0 z-30 shadow-2xl">
@@ -206,7 +206,17 @@
                 </div>
 
 
+
             </nav>
+
+            <!-- Theme Switcher -->
+            <div class="px-4 py-2.5 mx-4 mb-2 bg-slate-900/40 rounded-xl border border-slate-800/80 flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">Mode Tampilan</span>
+                <button id="theme-toggle" type="button" class="text-slate-400 hover:text-white hover:bg-slate-800 p-2 rounded-lg text-xs flex items-center gap-1.5 transition-all focus:outline-none cursor-pointer">
+                    <span id="theme-toggle-dark-icon" class="hidden">🌙 <span class="ml-1 font-bold">Gelap</span></span>
+                    <span id="theme-toggle-light-icon" class="hidden">☀️ <span class="ml-1 font-bold">Terang</span></span>
+                </button>
+            </div>
 
             <div class="p-4 m-4 bg-slate-900/50 rounded-2xl border border-slate-700/50">
                 <div class="flex items-center gap-3">
@@ -237,7 +247,7 @@
             </div>
         </aside>
 
-        <main class="flex-1 overflow-x-auto overflow-y-auto bg-[#f8fafc] p-8 z-10 relative">
+        <main class="flex-1 overflow-x-auto overflow-y-auto bg-[#f8fafc] dark:bg-slate-900 p-8 z-10 relative transition-colors duration-200">
             <div class="max-w-7xl mx-auto">
                 @yield('content')
             </div>
@@ -292,7 +302,47 @@
                 });
             }
         });
+
+        // Logika Switch Tema
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        // Periksa localStorage atau preferensi sistem
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            themeToggleLightIcon.classList.remove('hidden');
+            document.documentElement.classList.add('dark');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+            document.documentElement.classList.remove('dark');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
     </script>
+    
+    {{-- Include Floating WhatsApp Widget --}}
+    @include('partials.whatsapp-btn')
 </body>
 
 </html>
